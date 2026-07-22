@@ -67,7 +67,9 @@ export default function BrainGraph({
   }, []);
 
   useEffect(() => {
-    // gentle initial zoom-to-fit once the sim has settled a bit
+    // early feedback while the force sim is still spreading nodes out from
+    // their initial (0,0) cluster — this alone isn't enough on its own,
+    // since nodes keep drifting outward past whatever we fit to here.
     const t = setTimeout(() => fgRef.current?.zoomToFit(600, 60), 800);
     return () => clearTimeout(t);
   }, [data]);
@@ -102,6 +104,7 @@ export default function BrainGraph({
           linkDirectionalParticleWidth={1}
           linkDirectionalParticleColor={() => "rgba(200, 210, 230, 0.5)"}
           onNodeClick={(n) => onSelect((n as GNode).id)}
+          onEngineStop={() => fgRef.current?.zoomToFit(400, 60)}
           nodeCanvasObject={(node, ctx, globalScale) => {
             const n = node as GNode;
             const color = colorFor(n.category);

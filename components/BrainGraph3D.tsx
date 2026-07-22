@@ -80,7 +80,12 @@ export default function BrainGraph3D({
         // the single biggest lever for "serious instrument" over "toy demo"
         scene.fog = new THREE.FogExp2(0x00000a, 0.0028);
       }
-    }, 300);
+      // the default camera distance has no relation to how far the force
+      // sim ends up spreading nodes apart — without this, nodes can render
+      // far outside frame and the scene looks empty until the user scrolls
+      // out manually.
+      fgRef.current?.zoomToFit?.(600, 40);
+    }, 800);
     return () => clearTimeout(t);
   }, [data]);
 
@@ -155,6 +160,7 @@ export default function BrainGraph3D({
             if (controls) controls.autoRotate = false;
             onSelect((n as unknown as GNode).id);
           }}
+          onEngineStop={() => fgRef.current?.zoomToFit?.(400, 40)}
         />
       )}
     </div>
