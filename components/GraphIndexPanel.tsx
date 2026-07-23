@@ -55,7 +55,7 @@ export default function GraphIndexPanel({
     <div
       className={
         glass
-          ? "flex h-full w-72 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] font-mono text-xs text-[var(--text-secondary)] shadow-[0_0_40px_rgba(0,0,0,0.3)] backdrop-blur-xl"
+          ? "flex h-full w-72 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] font-mono text-xs text-[var(--text-secondary)] shadow-[0_0_40px_rgba(0,0,0,0.3)] backdrop-blur-2xl"
           : "flex h-full w-72 flex-col border-l border-[var(--panel-border)] bg-[var(--modal-bg)] font-mono text-xs text-[var(--text-secondary)]"
       }
     >

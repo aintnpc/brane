@@ -172,7 +172,7 @@ export default function BraneApp() {
 
       {/* selected concept — floating glass, center-right; absent = pure graph */}
       {selected && (
-        <div className="absolute left-[21rem] right-[22rem] top-16 z-20 max-h-[calc(100%-6rem)] overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] p-6 shadow-[0_0_60px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+        <div className="absolute left-[21rem] right-[22rem] top-16 z-20 max-h-[calc(100%-6rem)] overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] p-6 shadow-[0_0_60px_rgba(0,0,0,0.3)] backdrop-blur-2xl">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--text-primary)]">{selected.title}</h2>
@@ -211,7 +211,7 @@ export default function BraneApp() {
 
       {/* chat — floating glass, right. collapsed to a launcher until first use. */}
       {chatOpen ? (
-        <div className="absolute right-4 top-16 z-20 flex h-[calc(100%-6rem)] w-96 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] backdrop-blur-xl">
+        <div className="absolute right-4 top-16 z-20 flex h-[calc(100%-6rem)] w-96 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] backdrop-blur-2xl">
           <div className="flex items-center justify-between border-b border-[var(--panel-border)] px-4 py-2">
             <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
               chat stream

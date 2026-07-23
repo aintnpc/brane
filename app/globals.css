@@ -15,7 +15,7 @@
 
   /* theme tokens — everything glass/panel/text-toned reads from these so
      BraneApp/GraphIndexPanel don't need per-component light/dark branches. */
-  --panel-bg: rgba(0, 0, 0, 0.4);
+  --panel-bg: rgba(6, 6, 9, 0.85);
   --panel-border: rgba(255, 255, 255, 0.1);
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
@@ -30,7 +30,7 @@
 [data-theme="light"] {
   --background: #f4f4f5;
   --foreground: #18181b;
-  --panel-bg: rgba(255, 255, 255, 0.65);
+  --panel-bg: rgba(255, 255, 255, 0.85);
   --panel-border: rgba(0, 0, 0, 0.1);
   --text-primary: #18181b;
   --text-secondary: #52525b;
