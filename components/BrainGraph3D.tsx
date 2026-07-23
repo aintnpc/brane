@@ -13,6 +13,7 @@ interface GNode {
   title: string;
   category: string;
   degree?: number;
+  contentLength?: number;
   hasConflict?: boolean;
   x?: number;
   y?: number;
@@ -23,14 +24,29 @@ interface GLink {
   target: string;
 }
 
+// how much is actually written for a concept matters as much as how
+// connected it is — a node with 3 links but a one-line stub shouldn't
+// outsize a node with 1 link and 2000 words behind it.
+function sizeFor(n: GNode, base: number, degreeWeight: number, contentWeight: number): number {
+  return (
+    base +
+    Math.sqrt(n.degree ?? 0) * degreeWeight +
+    Math.sqrt((n.contentLength ?? 0) / 150) * contentWeight
+  );
+}
+
+const THEME_BG = { dark: "#00000a", light: "#e4e4e7" };
+
 export default function BrainGraph3D({
   onSelect,
   focusRelPath,
   hideLabel,
+  theme = "dark",
 }: {
   onSelect: (relPath: string) => void;
   focusRelPath?: string | null;
   hideLabel?: boolean;
+  theme?: "dark" | "light";
 }) {
   const [data, setData] = useState<{ nodes: GNode[]; links: GLink[] } | null>(null);
   const [dims, setDims] = useState({ width: 800, height: 600 });
@@ -80,7 +96,7 @@ export default function BrainGraph3D({
       if (scene) {
         // fog is what turns a flat void into something with depth/distance —
         // the single biggest lever for "serious instrument" over "toy demo"
-        scene.fog = new THREE.FogExp2(0x00000a, 0.0028);
+        scene.fog = new THREE.FogExp2(THEME_BG[theme], 0.0028);
       }
       // the default camera distance has no relation to how far the force
       // sim ends up spreading nodes apart — without this, nodes can render
@@ -89,7 +105,8 @@ export default function BrainGraph3D({
       fgRef.current?.zoomToFit?.(600, 40);
     }, 800);
     return () => clearTimeout(t);
-  }, [data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, theme]);
 
   useEffect(() => {
     if (!focusRelPath || !data) return;
@@ -106,7 +123,7 @@ export default function BrainGraph3D({
   }, [focusRelPath, data]);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full bg-black">
+    <div ref={containerRef} className="relative h-full w-full bg-[var(--graph-bg)]">
       {!hideLabel && (
       <div className="pointer-events-none absolute left-4 top-4 z-10 text-zinc-400">
         <div className="text-lg font-semibold text-zinc-100">this is my brane</div>
@@ -126,11 +143,11 @@ export default function BrainGraph3D({
           graphData={data}
           width={dims.width}
           height={dims.height}
-          backgroundColor="#00000a"
+          backgroundColor={THEME_BG[theme]}
           showNavInfo={false}
           nodeLabel={(n) => `${(n as unknown as GNode).title}`}
           nodeColor={(n) => colorFor((n as unknown as GNode).category)}
-          nodeVal={(n) => 2.4 + Math.sqrt((n as unknown as GNode).degree ?? 0) * 1.4}
+          nodeVal={(n) => sizeFor(n as unknown as GNode, 2.4, 1.0, 1.5)}
           nodeOpacity={0.9}
           nodeResolution={20}
           linkColor={() => "rgba(140, 150, 170, 0.18)"}

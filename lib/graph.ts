@@ -6,6 +6,7 @@ export interface GraphNode {
   title: string;
   category: string;
   hasConflict: boolean; // tagged "unresolved-conflict" — a QUESTION the engine refused to auto-resolve
+  contentLength: number; // chars in the concept body — how much is actually written here
 }
 
 export interface GraphLink {
@@ -43,6 +44,7 @@ export function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
     title: c.title,
     category: c.category,
     hasConflict: c.tags?.includes("unresolved-conflict") ?? false,
+    contentLength: c.content.trim().length,
   }));
 
   const linkSet = new Set<string>();

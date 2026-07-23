@@ -14,6 +14,7 @@ interface GNode extends NodeObject {
   title: string;
   category: string;
   degree?: number;
+  contentLength?: number;
   hasConflict?: boolean;
 }
 interface GLink extends LinkObject {
@@ -21,14 +22,29 @@ interface GLink extends LinkObject {
   target: string;
 }
 
+// how much is actually written for a concept matters as much as how
+// connected it is — a stub with 3 links shouldn't outsize a 2000-word
+// concept with 1 link.
+function sizeFor(n: GNode, base: number, degreeWeight: number, contentWeight: number): number {
+  return (
+    base +
+    Math.sqrt(n.degree ?? 0) * degreeWeight +
+    Math.sqrt((n.contentLength ?? 0) / 150) * contentWeight
+  );
+}
+
+const THEME_BG = { dark: "#00000a", light: "#e4e4e7" };
+
 export default function BrainGraph({
   onSelect,
   focusRelPath,
   hideLabel,
+  theme = "dark",
 }: {
   onSelect: (relPath: string) => void;
   focusRelPath?: string | null;
   hideLabel?: boolean;
+  theme?: "dark" | "light";
 }) {
   const [data, setData] = useState<{ nodes: GNode[]; links: GLink[] } | null>(null);
   const [dims, setDims] = useState({ width: 800, height: 600 });
@@ -85,7 +101,7 @@ export default function BrainGraph({
   }, [focusRelPath, data]);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full bg-black">
+    <div ref={containerRef} className="relative h-full w-full bg-[var(--graph-bg)]">
       {!hideLabel && (
         <div className="pointer-events-none absolute left-4 top-4 z-10 text-zinc-400">
           <div className="text-lg font-semibold text-zinc-100">this is my brane</div>
@@ -100,7 +116,7 @@ export default function BrainGraph({
           graphData={data}
           width={dims.width}
           height={dims.height}
-          backgroundColor="#00000a"
+          backgroundColor={THEME_BG[theme]}
           nodeLabel={(n) => (n as GNode).title}
           nodeRelSize={4}
           linkColor={() => "rgba(140, 150, 170, 0.18)"}
@@ -112,7 +128,7 @@ export default function BrainGraph({
           nodeCanvasObject={(node, ctx, globalScale) => {
             const n = node as GNode;
             const color = colorFor(n.category);
-            const radius = 3 + Math.sqrt(n.degree ?? 0) * 1.6;
+            const radius = sizeFor(n, 3, 1.3, 1.7);
 
             ctx.save();
             ctx.shadowColor = color;

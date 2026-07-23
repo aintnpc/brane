@@ -2,13 +2,44 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* dark is the default brand look (the graph-hero design is built for it) —
+     light mode is an explicit opt-in via the toggle, not a system-preference
+     fallback, so it never fights with the user's OS setting. */
+  --background: #050506;
+  --foreground: #ededed;
   /* brane's signature accent — one CSS variable, not hardcoded per-component,
      so a per-user/workspace theme ("your own brane cloud") is a variable
      swap later, not a find-and-replace across the app. */
   --brane-accent: #7c3aed;
   --brane-accent-rgb: 124, 58, 237;
+
+  /* theme tokens — everything glass/panel/text-toned reads from these so
+     BraneApp/GraphIndexPanel don't need per-component light/dark branches. */
+  --panel-bg: rgba(0, 0, 0, 0.4);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --hover-bg: rgba(255, 255, 255, 0.06);
+  --graph-bg: #00000a;
+  --graph-fog: #00000a;
+  --modal-bg: #09090b;
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+  --background: #f4f4f5;
+  --foreground: #18181b;
+  --panel-bg: rgba(255, 255, 255, 0.65);
+  --panel-border: rgba(0, 0, 0, 0.1);
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --graph-bg: #e4e4e7;
+  --graph-fog: #e4e4e7;
+  --modal-bg: #ffffff;
+  --overlay-bg: rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
@@ -17,13 +48,6 @@
   --color-brane-accent: var(--brane-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #050506;
-    --foreground: #ededed;
-  }
 }
 
 body {

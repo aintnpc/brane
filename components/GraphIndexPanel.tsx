@@ -55,27 +55,29 @@ export default function GraphIndexPanel({
     <div
       className={
         glass
-          ? "flex h-full w-72 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-black/40 font-mono text-xs text-zinc-300 shadow-[0_0_40px_rgba(0,0,0,0.5)] backdrop-blur-xl"
-          : "flex h-full w-72 flex-col border-l border-white/10 bg-zinc-950/95 font-mono text-xs text-zinc-300"
+          ? "flex h-full w-72 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] font-mono text-xs text-[var(--text-secondary)] shadow-[0_0_40px_rgba(0,0,0,0.3)] backdrop-blur-xl"
+          : "flex h-full w-72 flex-col border-l border-[var(--panel-border)] bg-[var(--modal-bg)] font-mono text-xs text-[var(--text-secondary)]"
       }
     >
-      <div className="border-b border-white/10 p-3">
-        <div className="mb-2 text-[10px] uppercase tracking-widest text-zinc-500">Index</div>
+      <div className="border-b border-[var(--panel-border)] p-3">
+        <div className="mb-2 text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
+          Index
+        </div>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="뭘 찾고 있어? (제목으로 검색)"
-          className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-white/30 focus:outline-none"
+          className="w-full rounded border border-[var(--panel-border)] bg-[var(--hover-bg)] px-2 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[rgba(var(--brane-accent-rgb),0.4)] focus:outline-none"
         />
       </div>
 
-      <div className="border-b border-white/10 p-3">
-        <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-widest text-zinc-500">
+      <div className="border-b border-[var(--panel-border)] p-3">
+        <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
           <span>Legend</span>
           {activeCategory && (
             <button
               onClick={() => setActiveCategory(null)}
-              className="normal-case tracking-normal text-zinc-400 hover:text-white"
+              className="normal-case tracking-normal text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               필터 해제
             </button>
@@ -88,8 +90,8 @@ export default function GraphIndexPanel({
               onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
               className={`flex items-center justify-between rounded px-1.5 py-1 text-left transition-colors ${
                 activeCategory === cat
-                  ? "bg-[rgba(var(--brane-accent-rgb),0.15)] text-white"
-                  : "hover:bg-white/5"
+                  ? "bg-[rgba(var(--brane-accent-rgb),0.15)] text-[var(--text-primary)]"
+                  : "hover:bg-[var(--hover-bg)]"
               }`}
               title={`${cat}만 보기`}
             >
@@ -101,7 +103,7 @@ export default function GraphIndexPanel({
                 <span>{iconFor(cat)}</span>
                 {cat}
               </span>
-              <span className="text-zinc-600">{n}</span>
+              <span className="text-[var(--text-muted)]">{n}</span>
             </button>
           ))}
         </div>
@@ -121,10 +123,10 @@ export default function GraphIndexPanel({
                 key={item.relPath}
                 onMouseEnter={() => onFocus?.(item.relPath)}
                 onClick={() => onSelect(item.relPath)}
-                className={`flex w-full items-center gap-1 truncate rounded px-2 py-1 text-left hover:bg-white/5 hover:text-white ${
+                className={`flex w-full items-center gap-1 truncate rounded px-2 py-1 text-left hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)] ${
                   selectedRelPath === item.relPath
-                    ? "bg-[rgba(var(--brane-accent-rgb),0.15)] text-white"
-                    : "text-zinc-300"
+                    ? "bg-[rgba(var(--brane-accent-rgb),0.15)] text-[var(--text-primary)]"
+                    : "text-[var(--text-secondary)]"
                 }`}
                 title={item.title}
               >
@@ -139,9 +141,9 @@ export default function GraphIndexPanel({
           </div>
         ))}
         {Object.keys(grouped).length === 0 && items.length > 0 && (
-          <div className="text-zinc-600">조건에 맞는 concept이 없어</div>
+          <div className="text-[var(--text-muted)]">조건에 맞는 concept이 없어</div>
         )}
-        {items.length === 0 && <div className="text-zinc-600">loading index...</div>}
+        {items.length === 0 && <div className="text-[var(--text-muted)]">loading index...</div>}
       </div>
     </div>
   );

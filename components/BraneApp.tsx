@@ -15,6 +15,8 @@ interface ChatTurn {
   loadedFiles: { relPath: string; title: string; timestamp: string }[];
 }
 
+type Theme = "dark" | "light";
+
 export default function BraneApp() {
   const [concepts, setConcepts] = useState<ConceptFile[]>([]);
   const [selected, setSelected] = useState<ConceptFile | null>(null);
@@ -24,8 +26,19 @@ export default function BraneApp() {
   const [asking, setAsking] = useState(false);
   const [chat, setChat] = useState<ChatTurn[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("dark");
 
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("brane-theme");
+    if (stored === "light" || stored === "dark") setTheme(stored);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("brane-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     fetch("/api/concepts")
@@ -94,29 +107,57 @@ export default function BraneApp() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#050506] text-sm text-zinc-100">
+    <div className="relative h-screen w-full overflow-hidden bg-[var(--background)] text-sm text-[var(--text-primary)]">
       {/* the graph is the hero — full-bleed background, everything else floats on top */}
       <div className="absolute inset-0">
         <GraphErrorBoundary
           fallback={
-            <BrainGraph onSelect={openConceptByRelPath} focusRelPath={focusRelPath} hideLabel />
+            <BrainGraph
+              onSelect={openConceptByRelPath}
+              focusRelPath={focusRelPath}
+              hideLabel
+              theme={theme}
+            />
           }
         >
-          <BrainGraph3D onSelect={openConceptByRelPath} focusRelPath={focusRelPath} hideLabel />
+          <BrainGraph3D
+            onSelect={openConceptByRelPath}
+            focusRelPath={focusRelPath}
+            hideLabel
+            theme={theme}
+          />
         </GraphErrorBoundary>
       </div>
       {/* vignette so floating glass panels stay legible over bright node clusters */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            theme === "dark"
+              ? "linear-gradient(to top, rgba(0,0,0,0.5), transparent, rgba(0,0,0,0.3))"
+              : "linear-gradient(to top, rgba(255,255,255,0.35), transparent, rgba(255,255,255,0.2))",
+        }}
+      />
 
       {/* brand chip, top-left */}
-      <div className="pointer-events-none absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[rgba(var(--brane-accent-rgb),0.25)] bg-black/40 px-3 py-1.5 backdrop-blur-xl">
+      <div className="pointer-events-none absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[rgba(var(--brane-accent-rgb),0.25)] bg-[var(--panel-bg)] px-3 py-1.5 backdrop-blur-xl">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">live</span>
-        <span className="mx-1 h-3 w-px bg-white/10" />
-        <span className="text-sm font-semibold tracking-tight text-white">brane</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">
+          live
+        </span>
+        <span className="mx-1 h-3 w-px bg-[var(--panel-border)]" />
+        <span className="text-sm font-semibold tracking-tight text-[var(--text-primary)]">brane</span>
+        <span className="mx-1 h-3 w-px bg-[var(--panel-border)]" />
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="pointer-events-auto text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          title={theme === "dark" ? "라이트 모드로" : "다크 모드로"}
+        >
+          {theme === "dark" ? "☀" : "🌙"}
+        </button>
       </div>
 
       {/* sidebar — floating glass, left */}
@@ -131,12 +172,12 @@ export default function BraneApp() {
 
       {/* selected concept — floating glass, center-right; absent = pure graph */}
       {selected && (
-        <div className="absolute left-[21rem] right-[22rem] top-16 z-20 max-h-[calc(100%-6rem)] overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-black/50 p-6 shadow-[0_0_60px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+        <div className="absolute left-[21rem] right-[22rem] top-16 z-20 max-h-[calc(100%-6rem)] overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] p-6 shadow-[0_0_60px_rgba(0,0,0,0.3)] backdrop-blur-xl">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-white">{selected.title}</h2>
-              <p className="text-zinc-400">{selected.description}</p>
-              <div className="mt-1 flex flex-wrap gap-2 font-mono text-[10px] text-zinc-500">
+              <h2 className="text-xl font-semibold text-[var(--text-primary)]">{selected.title}</h2>
+              <p className="text-[var(--text-secondary)]">{selected.description}</p>
+              <div className="mt-1 flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-muted)]">
                 <span>{selected.timestamp}</span>
                 {selected.status && <span>· {selected.status}</span>}
                 {selected.tags.map((t) => (
@@ -151,13 +192,13 @@ export default function BraneApp() {
             </div>
             <button
               onClick={() => setSelected(null)}
-              className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-xs text-zinc-400 hover:bg-white/5 hover:text-white"
+              className="shrink-0 rounded-full border border-[var(--panel-border)] px-2 py-1 text-xs text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]"
               title="닫고 그래프로 돌아가기"
             >
               ✕
             </button>
           </div>
-          <div className="prose prose-invert prose-sm max-w-none">
+          <div className={`prose prose-sm max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
             <MarkdownWithCitations
               content={selected.content}
               baseRelPath={selected.relPath}
@@ -170,14 +211,14 @@ export default function BraneApp() {
 
       {/* chat — floating glass, right. collapsed to a launcher until first use. */}
       {chatOpen ? (
-        <div className="absolute right-4 top-16 z-20 flex h-[calc(100%-6rem)] w-96 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-black/40 backdrop-blur-xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+        <div className="absolute right-4 top-16 z-20 flex h-[calc(100%-6rem)] w-96 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-[var(--panel-border)] px-4 py-2">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
               chat stream
             </span>
             <button
               onClick={() => setChatOpen(false)}
-              className="text-zinc-500 hover:text-white"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               title="접기"
             >
               ✕
@@ -185,26 +226,28 @@ export default function BraneApp() {
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto p-4">
             {chat.length === 0 && (
-              <p className="text-zinc-500">bundle 전체를 대상으로 질문해보세요.</p>
+              <p className="text-[var(--text-muted)]">bundle 전체를 대상으로 질문해보세요.</p>
             )}
             {chat.map((turn, i) => (
               <div key={i} className="space-y-2">
-                <div className="rounded-lg bg-white/5 px-3 py-2 font-medium text-zinc-100">
+                <div className="rounded-lg bg-[var(--hover-bg)] px-3 py-2 font-medium text-[var(--text-primary)]">
                   {turn.query}
                 </div>
-                <div className="prose prose-invert prose-sm max-w-none">
+                <div className={`prose prose-sm max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
                   <MarkdownWithCitations content={turn.answer} onCite={openCitation} />
                 </div>
                 {turn.loadedFiles.length > 0 && (
-                  <div className="font-mono text-[10px] text-zinc-500">
+                  <div className="font-mono text-[10px] text-[var(--text-muted)]">
                     로드한 파일: {turn.loadedFiles.map((f) => `${f.title}(${f.timestamp})`).join(", ")}
                   </div>
                 )}
               </div>
             ))}
-            {asking && <p className="text-zinc-500">brane이 관련 파일을 찾고 답변 합성 중...</p>}
+            {asking && (
+              <p className="text-[var(--text-muted)]">brane이 관련 파일을 찾고 답변 합성 중...</p>
+            )}
           </div>
-          <div className="border-t border-white/10 p-3">
+          <div className="border-t border-[var(--panel-border)] p-3">
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -216,7 +259,7 @@ export default function BraneApp() {
               }}
               placeholder="brane한테 물어보기..."
               autoFocus
-              className="w-full resize-none rounded border border-white/10 bg-black/30 p-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-[rgba(var(--brane-accent-rgb),0.4)] focus:outline-none"
+              className="w-full resize-none rounded border border-[var(--panel-border)] bg-[var(--hover-bg)] p-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[rgba(var(--brane-accent-rgb),0.4)] focus:outline-none"
               rows={2}
             />
           </div>
@@ -224,7 +267,7 @@ export default function BraneApp() {
       ) : (
         <button
           onClick={() => setChatOpen(true)}
-          className="absolute right-4 top-16 z-20 rounded-full border border-[rgba(var(--brane-accent-rgb),0.25)] bg-black/40 px-4 py-2 font-mono text-xs text-zinc-300 backdrop-blur-xl hover:bg-black/60 hover:text-white"
+          className="absolute right-4 top-16 z-20 rounded-full border border-[rgba(var(--brane-accent-rgb),0.25)] bg-[var(--panel-bg)] px-4 py-2 font-mono text-xs text-[var(--text-secondary)] backdrop-blur-xl hover:text-[var(--text-primary)]"
         >
           💬 brane한테 물어보기
         </button>
@@ -233,23 +276,26 @@ export default function BraneApp() {
       {/* citation modal */}
       {citation && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-8"
+          className="fixed inset-0 z-50 flex items-center justify-center p-8"
+          style={{ background: "var(--overlay-bg)" }}
           onClick={() => setCitation(null)}
         >
           <div
-            className="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg border border-white/10 bg-zinc-950 p-6 shadow-xl"
+            className="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg border border-[var(--panel-border)] bg-[var(--modal-bg)] p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-mono text-xs text-zinc-500">{citation.ref}</h3>
+              <h3 className="font-mono text-xs text-[var(--text-muted)]">{citation.ref}</h3>
               <button
                 onClick={() => setCitation(null)}
-                className="rounded px-2 py-1 text-zinc-500 hover:bg-white/5 hover:text-white"
+                className="rounded px-2 py-1 text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]"
               >
                 닫기
               </button>
             </div>
-            <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-200">{citation.content}</pre>
+            <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--text-primary)]">
+              {citation.content}
+            </pre>
           </div>
         </div>
       )}
