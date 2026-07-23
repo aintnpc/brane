@@ -19,12 +19,26 @@ function preprocess(markdown: string): string {
   });
 }
 
+// Bundle files link to each other with plain relative markdown links, e.g.
+// `[green-apple](../ventures/green-apple.md)` written from
+// `architecture/brane.md`. Resolve that against the *current* concept's
+// relPath to get the target's relPath (bundle/-relative, no leading slash).
+function resolveConceptRelPath(baseRelPath: string, href: string): string {
+  const baseDir = baseRelPath.split("/").slice(0, -1).join("/");
+  const url = new URL(href, `https://_/${baseDir}/`);
+  return decodeURIComponent(url.pathname.replace(/^\//, ""));
+}
+
 export default function MarkdownWithCitations({
   content,
+  baseRelPath,
   onCite,
+  onOpenConcept,
 }: {
   content: string;
+  baseRelPath?: string;
   onCite: (ref: string) => void;
+  onOpenConcept?: (relPath: string) => void;
 }) {
   const components: Components = {
     a: ({ href, children, ...props }) => {
@@ -36,6 +50,24 @@ export default function MarkdownWithCitations({
             onClick={() => onCite(ref)}
             className="inline-flex items-center text-xs align-super text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
             title={ref}
+          >
+            {children}
+          </button>
+        );
+      }
+      // Internal concept-to-concept links (relative .md paths) — these
+      // aren't real routes in the app (only /, /graph, /benchmark exist),
+      // so letting the browser navigate to them 404s. Intercept and open
+      // the target in the concept viewer instead, same as sidebar clicks.
+      const isConceptLink = href && !/^([a-z]+:)?\/\//i.test(href) && /\.md(#.*)?$/i.test(href);
+      if (isConceptLink && baseRelPath && onOpenConcept) {
+        const target = resolveConceptRelPath(baseRelPath, href);
+        return (
+          <button
+            type="button"
+            onClick={() => onOpenConcept(target)}
+            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+            title={target}
           >
             {children}
           </button>

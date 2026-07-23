@@ -38,6 +38,18 @@ export default function BraneApp() {
     (grouped[c.category] ??= []).push(c);
   }
 
+  function openConceptByRelPath(relPath: string) {
+    const target = concepts.find((c) => c.relPath === relPath);
+    if (target) {
+      setSelected(target);
+    } else {
+      setCitation({
+        ref: relPath,
+        content: "(원본을 찾을 수 없음 — bundle에서 삭제되었거나 경로가 다릅니다)",
+      });
+    }
+  }
+
   async function openCitation(ref: string) {
     const res = await fetch(`/api/archive?ref=${encodeURIComponent(ref)}`);
     if (res.ok) {
@@ -127,7 +139,12 @@ export default function BraneApp() {
                 ))}
               </div>
             </div>
-            <MarkdownWithCitations content={selected.content} onCite={openCitation} />
+            <MarkdownWithCitations
+              content={selected.content}
+              baseRelPath={selected.relPath}
+              onCite={openCitation}
+              onOpenConcept={openConceptByRelPath}
+            />
           </>
         ) : (
           <p className="text-zinc-400">bundle 로딩 중...</p>
