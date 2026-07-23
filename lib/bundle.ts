@@ -5,7 +5,7 @@ import matter from "gray-matter";
 // brane's core rule: the app never owns data, it only reads a client's brane files.
 // The app repo and the personal data repo are separate — BRANE_DATA_DIR points
 // at the client instance (e.g. a checkout of the private my-brane repo).
-const BRANE_ROOT = process.env.BRANE_DATA_DIR
+export const BRANE_ROOT = process.env.BRANE_DATA_DIR
   ? path.resolve(process.env.BRANE_DATA_DIR)
   : path.join(process.cwd(), "..");
 export const BUNDLE_DIR = path.join(BRANE_ROOT, "bundle");

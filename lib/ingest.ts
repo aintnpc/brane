@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
-import { listConcepts, BUNDLE_DIR, ARCHIVE_DIR } from "./bundle";
+import { listConcepts, BUNDLE_DIR, ARCHIVE_DIR, BRANE_ROOT } from "./bundle";
+
+const LOG_DIR = path.join(BRANE_ROOT, ".ingest-logs");
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 const MODEL = "claude-sonnet-5";
@@ -45,12 +47,23 @@ export interface IngestQuestion {
   report: string;
 }
 
+export interface IngestTraceEntry {
+  title: string;
+  plannerJudgment: "NEW" | "UPDATE" | "REFINE" | "QUESTION";
+  effectiveJudgment: string;
+  overridden: boolean; // true when the safety net corrected the planner's NEW mislabel
+  targetRelPath: string;
+  reasoning: string;
+}
+
 export interface IngestResult {
   source: string;
   newFiles: string[];
   updatedFiles: string[];
   questions: IngestQuestion[];
   skippedCount: number;
+  trace: IngestTraceEntry[];
+  traceLogPath: string;
 }
 
 interface PlannedConcept {
@@ -97,13 +110,25 @@ export async function ingest(sourceAbsPath: string): Promise<IngestResult> {
     throw new Error(`ingest planning failed to parse: ${(err as Error).message}`);
   }
 
+  console.log(`[ingest] ${sourceRelName}: planned ${plan.length} concept(s)`);
+
   const newFiles: string[] = [];
   const updatedFiles: string[] = [];
   const questions: IngestQuestion[] = [];
+  const trace: IngestTraceEntry[] = [];
 
   for (const p of plan) {
     if (p.judgment === "QUESTION") {
       questions.push({ concept: p.title, report: p.reasoning });
+      trace.push({
+        title: p.title,
+        plannerJudgment: p.judgment,
+        effectiveJudgment: "QUESTION",
+        overridden: false,
+        targetRelPath: p.targetRelPath,
+        reasoning: p.reasoning,
+      });
+      console.log(`[ingest]   QUESTION "${p.title}" — ${p.reasoning}`);
       continue; // existing file untouched, per spec
     }
 
@@ -135,6 +160,19 @@ export async function ingest(sourceAbsPath: string): Promise<IngestResult> {
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
     fs.writeFileSync(targetPath, fileContent + "\n", "utf-8");
 
+    const overridden = fileAlreadyExists && p.judgment === "NEW";
+    trace.push({
+      title: p.title,
+      plannerJudgment: p.judgment,
+      effectiveJudgment,
+      overridden,
+      targetRelPath: p.targetRelPath,
+      reasoning: p.reasoning,
+    });
+    console.log(
+      `[ingest]   ${effectiveJudgment}${overridden ? " (planner said NEW, corrected)" : ""} "${p.title}" -> ${p.targetRelPath} — ${p.reasoning}`,
+    );
+
     if (effectiveJudgment === "NEW") newFiles.push(p.targetRelPath);
     else updatedFiles.push(p.targetRelPath);
   }
@@ -142,11 +180,21 @@ export async function ingest(sourceAbsPath: string): Promise<IngestResult> {
   fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
   fs.renameSync(sourceAbsPath, path.join(ARCHIVE_DIR, sourceRelName));
 
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+  const traceLogPath = path.join(LOG_DIR, `${sourceRelName}.trace.json`);
+  fs.writeFileSync(
+    traceLogPath,
+    JSON.stringify({ source: sourceRelName, ranAt: new Date().toISOString(), trace }, null, 2),
+    "utf-8",
+  );
+
   return {
     source: sourceRelName,
     newFiles,
     updatedFiles,
     questions,
     skippedCount: 0, // the planner already drops non-durable content; nothing to count separately yet
+    trace,
+    traceLogPath,
   };
 }
