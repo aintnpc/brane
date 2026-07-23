@@ -81,9 +81,11 @@ export default function MarkdownWithCitations({
     },
   };
 
-  return (
-    <div className="prose prose-zinc dark:prose-invert max-w-none prose-sm">
-      <ReactMarkdown components={components}>{preprocess(content)}</ReactMarkdown>
-    </div>
-  );
+  // No prose wrapper here on purpose — the caller wraps this in its own
+  // `.prose` div with the theme-correct `prose-invert` toggle. A second
+  // nested `.prose` here would redefine the CSS custom properties
+  // (--tw-prose-body etc.) for its own subtree and silently override the
+  // parent's theme, which is exactly the bug this comment is here to
+  // prevent someone from reintroducing.
+  return <ReactMarkdown components={components}>{preprocess(content)}</ReactMarkdown>;
 }
