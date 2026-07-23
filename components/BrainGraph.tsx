@@ -24,9 +24,11 @@ interface GLink extends LinkObject {
 export default function BrainGraph({
   onSelect,
   focusRelPath,
+  hideLabel,
 }: {
   onSelect: (relPath: string) => void;
   focusRelPath?: string | null;
+  hideLabel?: boolean;
 }) {
   const [data, setData] = useState<{ nodes: GNode[]; links: GLink[] } | null>(null);
   const [dims, setDims] = useState({ width: 800, height: 600 });
@@ -84,12 +86,14 @@ export default function BrainGraph({
 
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black">
-      <div className="pointer-events-none absolute left-4 top-4 z-10 text-zinc-400">
-        <div className="text-lg font-semibold text-zinc-100">this is my brane</div>
-        <div className="text-xs">
-          {data ? `${data.nodes.length} concepts · ${data.links.length} links` : "loading..."}
+      {!hideLabel && (
+        <div className="pointer-events-none absolute left-4 top-4 z-10 text-zinc-400">
+          <div className="text-lg font-semibold text-zinc-100">this is my brane</div>
+          <div className="text-xs">
+            {data ? `${data.nodes.length} concepts · ${data.links.length} links` : "loading..."}
+          </div>
         </div>
-      </div>
+      )}
       {data && (
         <ForceGraph2D
           ref={fgRef}

@@ -14,3 +14,18 @@ export const DEFAULT_CATEGORY_COLOR = "#6b7280";
 export function colorFor(category: string): string {
   return CATEGORY_COLOR[category] ?? DEFAULT_CATEGORY_COLOR;
 }
+
+export const CATEGORY_ICON: Record<string, string> = {
+  identity: "🪪",
+  ventures: "🚀",
+  architecture: "🏛",
+  roadmap: "🗺",
+  playbooks: "📘",
+  notes: "📝",
+  personal: "👤",
+};
+export const DEFAULT_CATEGORY_ICON = "🔹";
+
+export function iconFor(category: string): string {
+  return CATEGORY_ICON[category] ?? DEFAULT_CATEGORY_ICON;
+}
