@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { isPublicConcept, isPublicArchive, privateAccessAllowed } from "./visibility";
 
 // brane's core rule: the app never owns data, it only reads a client's brane files.
 // The app repo and the personal data repo are separate — BRANE_DATA_DIR points
@@ -23,6 +24,26 @@ export interface ConceptFile {
   content: string; // markdown body (frontmatter stripped)
 }
 
+// Public concepts cross-link to private ones — ventures/pegasus.md points at
+// identity/life-plan.md, playbooks link to roadmap/thiel-fellowship.md. Serving
+// that markup verbatim publishes the private files' names and paths even though
+// getConcept() refuses their contents, and leaves the reader clicking links that
+// 404. Demote those links to plain text; leave `^[archive/...]` citations alone
+// (different syntax, and they have their own gate in getArchiveSource).
+function redactPrivateLinks(content: string, fromRelPath: string): string {
+  if (privateAccessAllowed()) return content;
+  const fromDir = path.dirname(path.join(BUNDLE_DIR, fromRelPath));
+  return content.replace(/\[([^\]]*)\]\(([^)]+)\)/g, (whole, text: string, href: string) => {
+    if (!href.endsWith(".md") || href.startsWith("http") || href.startsWith("archive/")) {
+      return whole;
+    }
+    const resolved = path.resolve(fromDir, href);
+    if (!resolved.startsWith(BUNDLE_DIR)) return whole;
+    const target = path.relative(BUNDLE_DIR, resolved).replace(/\\/g, "/");
+    return isPublicConcept(target) ? whole : text;
+  });
+}
+
 function walkMarkdownFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -42,8 +63,11 @@ export function listConcepts(): ConceptFile[] {
   const files = walkMarkdownFiles(BUNDLE_DIR);
   const concepts: ConceptFile[] = [];
   for (const filePath of files) {
-    const raw = fs.readFileSync(filePath, "utf-8");
     const relPath = path.relative(BUNDLE_DIR, filePath).replace(/\\/g, "/");
+    // Filter before reading, not after — a private file's contents should
+    // never sit in this process's memory on a public request.
+    if (!privateAccessAllowed() && !isPublicConcept(relPath)) continue;
+    const raw = fs.readFileSync(filePath, "utf-8");
     let data: Record<string, unknown>;
     let content: string;
     try {
@@ -68,13 +92,14 @@ export function listConcepts(): ConceptFile[] {
       tags: (data.tags as string[]) ?? [],
       timestamp: data.timestamp ? String(data.timestamp) : "",
       status: data.status as string | undefined,
-      content,
+      content: redactPrivateLinks(content, relPath),
     });
   }
   return concepts.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
 }
 
 export function getConcept(relPath: string): ConceptFile | null {
+  if (!privateAccessAllowed() && !isPublicConcept(relPath)) return null;
   const filePath = path.join(BUNDLE_DIR, relPath);
   if (!filePath.startsWith(BUNDLE_DIR) || !fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, "utf-8");
@@ -99,7 +124,7 @@ export function getConcept(relPath: string): ConceptFile | null {
     tags: (data.tags as string[]) ?? [],
     timestamp: data.timestamp ? String(data.timestamp) : "",
     status: data.status as string | undefined,
-    content,
+    content: redactPrivateLinks(content, relPath),
   };
 }
 
@@ -115,6 +140,7 @@ export function groupByCategory(concepts: ConceptFile[]): Record<string, Concept
 // Reads an archive source file referenced by a `^[archive/...]` citation.
 export function getArchiveSource(archiveRelPath: string): string | null {
   // archiveRelPath looks like "archive/2026-07-04-market-and-hyre.md"
+  if (!privateAccessAllowed() && !isPublicArchive(archiveRelPath)) return null;
   const filename = archiveRelPath.replace(/^archive\//, "");
   const filePath = path.join(ARCHIVE_DIR, filename);
   if (!filePath.startsWith(ARCHIVE_DIR) || !fs.existsSync(filePath)) return null;

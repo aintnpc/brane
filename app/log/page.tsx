@@ -29,8 +29,9 @@ export default function LogPage() {
 
   useEffect(() => {
     fetch("/api/ingest-log")
-      .then((r) => r.json())
-      .then(setRuns);
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setRuns(Array.isArray(d) ? d : []))
+      .catch(() => setRuns([]));
   }, []);
 
   return (

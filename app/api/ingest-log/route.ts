@@ -13,6 +13,11 @@ interface TraceFile {
 }
 
 export async function GET() {
+  // Traces name private bundle files (personal/*, notes/*) and quote the
+  // planner's reasoning about them. Never off-machine.
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "local-only" }, { status: 403 });
+  }
   if (!fs.existsSync(LOG_DIR)) return NextResponse.json([]);
   const files = fs
     .readdirSync(LOG_DIR)

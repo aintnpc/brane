@@ -75,6 +75,13 @@ export default function BraneApp() {
     if (res.ok) {
       const data = await res.json();
       setCitation(data);
+    } else if (res.status === 403) {
+      setCitation({
+        ref,
+        content:
+          "(비공개 원본 — 이 인용의 출처는 공개 범위에 포함되지 않았습니다.\n" +
+          "원장에는 개인 기록이 함께 들어 있고, 무엇을 열지는 기록의 주인이 고릅니다.)",
+      });
     } else {
       setCitation({ ref, content: "(원본을 찾을 수 없음 — archive에서 삭제되었거나 경로가 다릅니다)" });
     }
