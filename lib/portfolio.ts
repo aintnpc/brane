@@ -152,11 +152,15 @@ export const PROJECTS: Project[] = [
  */
 const REFINE_LINES = 37282;
 
+/** The abandoned React Native port of Clozet, cited in that case study. */
+const LYFE_LINES = 36211;
+
 export const CODE_TOTAL = {
   lines:
     PROJECTS.reduce((n, p) => n + (p.code?.lines ?? 0), 0) +
     CASES.reduce((n, c) => n + c.code.lines, 0) +
-    REFINE_LINES,
+    REFINE_LINES +
+    LYFE_LINES,
   commits:
     PROJECTS.reduce((n, p) => n + (p.code?.commits ?? 0), 0) +
     CASES.reduce((n, c) => n + (c.code.commits ?? 0), 0),
