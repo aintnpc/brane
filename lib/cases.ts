@@ -5,7 +5,7 @@
 // "so what can he actually do". Breadth was doing all the work and none of it
 // was evidence.
 //
-// These three are written from the engineering records inside the repos — an
+// These four are written from the engineering records inside the repos — an
 // incident report, a derivation, a queue processor — because judgment is the
 // thing being shown, and judgment only exists in specifics.
 
@@ -300,7 +300,7 @@ Green/Red Apple (RN)  42,691줄   RevenueCat · 영어권 우선`,
     code: {
       lines: 42691,
       files: 171,
-      commits: 3,
+      commits: 2,
       period: "2026.05 — 2026.07",
       breakdown: "TSX 26,665줄 · TS 13,711줄 · SQL 1,432줄 · 앱 3 + 패키지 3",
     },

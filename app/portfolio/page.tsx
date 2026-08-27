@@ -122,7 +122,7 @@ export default function PortfolioPage() {
       <section className="mt-20">
         <Kicker>선택 작업</Kicker>
         <h2 className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
-          판단이 필요했던 세 건
+          판단이 필요했던 네 건
         </h2>
 
         <div className="mt-14 space-y-24">

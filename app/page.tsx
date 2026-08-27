@@ -13,7 +13,7 @@ const doors = [
     label: "PORTFOLIO",
     title: "포트폴리오",
     blurb: "지금까지 만든 것들 — 그리고 그것을 만든 과정.",
-    meta: "9개 프로젝트 · 2022 → 2026",
+    meta: "케이스 4건 · 2022 → 2026",
   },
   {
     href: "/web",
