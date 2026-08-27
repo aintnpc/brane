@@ -12,6 +12,9 @@
      swap later, not a find-and-replace across the app. */
   --brane-accent: #7c3aed;
   --brane-accent-rgb: 124, 58, 237;
+  /* Same hue, lifted for legibility as small text on the near-black ground.
+     Only the graph should use the saturated brand value directly. */
+  --accent-text: #a78bfa;
 
   /* theme tokens — everything glass/panel/text-toned reads from these so
      BraneApp/GraphIndexPanel don't need per-component light/dark branches. */
@@ -28,6 +31,7 @@
 }
 
 [data-theme="light"] {
+  --accent-text: #6d28d9;
   --background: #f4f4f5;
   --foreground: #18181b;
   --panel-bg: rgba(255, 255, 255, 0.85);
