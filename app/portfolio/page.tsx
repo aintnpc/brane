@@ -6,11 +6,11 @@ import EvidenceLink from "@/components/EvidenceLink";
 
 export const metadata: Metadata = {
   title: "Jaewon Kim — Portfolio",
-  description: "앱·백오피스·결제·인프라를 혼자 만든다. 판단이 필요했던 세 건과, 그 판단이 만들어진 과정.",
+  description: "앱·백오피스·결제·인프라를 혼자 만든다. 판단이 필요했던 네 건과, 그 판단이 만들어진 과정.",
 };
 
 const LINK_DOT: Record<string, string> = { live: "#22c55e", repo: "#a78bfa", gone: "#71717a" };
-const ANCHORS = ["clozet", "pegasus", "share2dm"];
+const ANCHORS = ["clozet", "pegasus", "share2dm", "green-apple"];
 
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
@@ -86,9 +86,10 @@ export default function PortfolioPage() {
           2022년부터 {CODE_TOTAL.lines.toLocaleString()}줄.
         </p>
         <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          아래 세 건은 그중 판단이 필요했던 문제다. 정산이 195만원 어긋난 이유를 역추적한 기록,
+          아래 네 건은 그중 판단이 필요했던 문제다. 정산이 195만원 어긋난 이유를 역추적한 기록,
           eVTOL 형상이 물리적으로 불가능하다는 걸 유도해 스스로 접은 기록, 남이 정한 rate limit 위에서
-          멀티테넌트 큐를 돌린 기록. 나머지 작업은 그 아래에 목록으로 두었다.
+          멀티테넌트 큐를 돌린 기록, 그리고 잘 만들어놓고 팔지 못한 기록. 마지막 건이 지금 고치고
+          있는 문제다.
         </p>
       </header>
 

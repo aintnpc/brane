@@ -39,8 +39,8 @@ export const MARKS: Mark[] = [
   { name: "Clozet", href: "#clozet", src: "/portfolio/marks/clozet.png", bg: "#ffffff", kicker: "커머스 플랫폼" },
   { name: "PEGASUS", href: "#pegasus", bg: "#111114", fg: "#e4e4e7", kicker: "eVTOL 개념설계" },
   { name: "Share2DM", href: "#share2dm", src: "/portfolio/marks/share2dm.png", bg: "#f7f7f8", kicker: "DM 자동화" },
-  { name: "Green Apple", href: "#others", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
-  { name: "Red Apple", href: "#others", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
+  { name: "Green Apple", href: "#green-apple", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
+  { name: "Red Apple", href: "#green-apple", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
   { name: "brane", href: "#others", src: "/portfolio/marks/brane.png", bg: "#f4f4f5", kicker: "기억 원장" },
 ];
 
@@ -84,37 +84,6 @@ export interface Project {
 }
 
 export const PROJECTS: Project[] = [
-  {
-    name: "Green Apple / Red Apple",
-    year: "2026.05 — 2026.07",
-    oneLiner: "기록이 아니라 처방하는 AI 헬스 코치. 전날 식단에 따라 오늘 운동량이 바뀐다.",
-    status: "Green: App Store 리스팅 만료 · 첫 결제 1건 / Red: MVP 완성·파킹",
-    stage: "shipped",
-    role: "단독 개발 — 모노레포 설계, 앱 2종, 공용 패키지 3종",
-    detail:
-      "Cal AI·MyFitnessPal이 칼로리 측정에서 멈추는 지점에서 역산해 운동량을 지시한다. 앱 2개(다이어트/증량)와 " +
-      "랜딩이 공용 패키지(shared·theme·ui) 위에 올라간 모노레포다. Green은 App Store 라이브 상태를 거쳐 " +
-      "만료됐고, 낯선 유저의 결제 1건이 발생했으나 유입 경로도 결제 이유도 추적되지 않았다. " +
-      "그래서 목표를 '결제 1건'이 아니라 '출처를 아는 결제 1건'으로 다시 세웠다 — 계측 부재가 " +
-      "진짜 문제였다는 진단이다.",
-    stack: ["React Native", "Expo", "TypeScript", "Supabase", "RevenueCat", "Gemini API"],
-    source: "ventures/green-apple.md",
-    links: [
-      { label: "onfit.run", href: "https://onfit.run", kind: "live", note: "랜딩 페이지" },
-      {
-        label: "github.com/aintnpc/React-brix-Green-RedApple",
-        href: "https://github.com/aintnpc/React-brix-Green-RedApple",
-        kind: "repo",
-      },
-    ],
-    code: {
-      lines: 42691,
-      files: 171,
-      commits: 3,
-      period: "2026.05 — 2026.07",
-      breakdown: "TSX 26,665줄 · TS 13,711줄 · SQL 1,432줄 · 앱 3 + 패키지 3",
-    },
-  },
   {
     name: "brane",
     year: "2026.07 — 진행 중",
@@ -170,45 +139,24 @@ export const PROJECTS: Project[] = [
     source: "ventures/hyre.md",
     links: [{ label: "이 페이지", kind: "live", href: "/portfolio" }],
   },
-  {
-    name: "PlayIT",
-    year: "2026",
-    oneLiner: "LED가 악보가 되는 피아노 학습 시스템.",
-    status: "프로토타입 설계 완료 · 파킹",
-    stage: "design",
-    role: "단독 기획·설계",
-    detail:
-      "화면 가상 건반(Synthesia류)은 있지만 실물 피아노용 LED 하드웨어 제품은 없다는 공백에서 " +
-      "출발했다. brane과 Green Apple에 우선순위가 밀려 파킹 상태다.",
-    stack: ["하드웨어", "MIDI", "라즈베리파이"],
-    source: "ventures/playit.md",
-    links: [{ label: "미출시", kind: "gone", note: "설계 단계에서 파킹" }],
-  },
-  {
-    name: "Befficient",
-    year: "2026",
-    oneLiner: "'이미 한 선택이 놓친 게 있었는가'를 금액으로 계산하는 카운터팩추얼 엔진.",
-    status: "아이디어 검증 단계",
-    stage: "design",
-    role: "단독 기획",
-    detail:
-      "추천 서비스가 '무엇을 사야 하나'를 말할 때, Befficient는 이미 한 결제를 그 시점의 대안과 " +
-      "비교해 놓친 금액을 보여준다. 사람은 절약(이득)에는 둔감해도 '내가 손해 보고 있었다'는 " +
-      "사실에는 즉각 반응한다는 손실회피 심리를 훅으로 쓴다.",
-    stack: ["룰 엔진", "마이데이터"],
-    source: "ventures/befficient.md",
-    links: [{ label: "미출시", kind: "gone", note: "검증 단계" }],
-  },
 ];
 
 /**
  * Aggregate across the case studies and the index — stated in the header, so it
  * has to equal the per-entry figures a reader can add up themselves.
  */
+/**
+ * Written before the Green Apple rewrite and cited inside that case study, so it
+ * has to be in the total too — otherwise a reader adding the figures up lands on
+ * a different number than the header claims.
+ */
+const REFINE_LINES = 37282;
+
 export const CODE_TOTAL = {
   lines:
     PROJECTS.reduce((n, p) => n + (p.code?.lines ?? 0), 0) +
-    CASES.reduce((n, c) => n + c.code.lines, 0),
+    CASES.reduce((n, c) => n + c.code.lines, 0) +
+    REFINE_LINES,
   commits:
     PROJECTS.reduce((n, p) => n + (p.code?.commits ?? 0), 0) +
     CASES.reduce((n, c) => n + (c.code.commits ?? 0), 0),
