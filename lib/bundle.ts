@@ -6,9 +6,21 @@ import { isPublicConcept, isPublicArchive, privateAccessAllowed } from "./visibi
 // brane's core rule: the app never owns data, it only reads a client's brane files.
 // The app repo and the personal data repo are separate — BRANE_DATA_DIR points
 // at the client instance (e.g. a checkout of the private my-brane repo).
-export const BRANE_ROOT = process.env.BRANE_DATA_DIR
-  ? path.resolve(process.env.BRANE_DATA_DIR)
-  : path.join(process.cwd(), "..");
+// Locally, BRANE_DATA_DIR points at the full private ledger so the author can
+// browse everything. In production that directory doesn't exist — deliberately.
+// Only public-data/ (the allowlisted slice, see scripts/sync-public-data.mjs)
+// is committed and deployed, so the private files aren't merely unserved, they
+// aren't there. Falling back on a missing bundle/ dir also means a broken data
+// mount degrades to the public site instead of an empty one.
+function resolveBraneRoot(): string {
+  const explicit = process.env.BRANE_DATA_DIR
+    ? path.resolve(process.env.BRANE_DATA_DIR)
+    : null;
+  if (explicit && fs.existsSync(path.join(explicit, "bundle"))) return explicit;
+  return path.join(process.cwd(), "public-data");
+}
+
+export const BRANE_ROOT = resolveBraneRoot();
 export const BUNDLE_DIR = path.join(BRANE_ROOT, "bundle");
 export const ARCHIVE_DIR = path.join(BRANE_ROOT, "archive");
 
