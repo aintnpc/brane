@@ -1,3 +1,5 @@
+import { CASES } from "./cases";
+
 // Curated portfolio content.
 //
 // Two rules govern what may appear here.
@@ -13,6 +15,34 @@
 //
 // Status strings come from each venture doc's own frontmatter, unrewritten.
 // "도메인 만료", "App Store 리스팅 만료", "파킹" stay in.
+
+
+export interface Mark {
+  name: string;
+  /** anchor on this page */
+  href: string;
+  /** logo file, when one exists — otherwise the name is set as a wordmark */
+  src?: string;
+  /**
+   * Each mark keeps the background it was drawn for. Clozet's is a white app
+   * icon, Red Apple's ships on near-black, the rest are transparent. Forcing one
+   * tile colour on all of them made Red Apple read as a black square with a
+   * mistake in it. An app-icon shelf is supposed to be many colours.
+   */
+  bg: string;
+  fg?: string;
+  kicker: string;
+}
+
+/** The strip at the top: what got built, at a glance, before any reading. */
+export const MARKS: Mark[] = [
+  { name: "Clozet", href: "#clozet", src: "/portfolio/marks/clozet.png", bg: "#ffffff", kicker: "커머스 플랫폼" },
+  { name: "PEGASUS", href: "#pegasus", bg: "#111114", fg: "#e4e4e7", kicker: "eVTOL 개념설계" },
+  { name: "Share2DM", href: "#share2dm", src: "/portfolio/marks/share2dm.png", bg: "#f7f7f8", kicker: "DM 자동화" },
+  { name: "Green Apple", href: "#others", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
+  { name: "Red Apple", href: "#others", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
+  { name: "brane", href: "#others", src: "/portfolio/marks/brane.png", bg: "#f4f4f5", kicker: "기억 원장" },
+];
 
 export interface ProjectLink {
   label: string;
@@ -55,37 +85,6 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
-    name: "Clozet",
-    year: "2025.07 — 2026.07",
-    oneLiner: "인스타그램 공유를 자동 DM 스토어프론트로 바꾸는 풀 커머스 플랫폼.",
-    status: "구축 완료 · 도메인 만료",
-    stage: "built",
-    role: "단독 개발 — 앱·백오피스·인프라·결제·Meta 연동 전부",
-    detail:
-      "영상을 보다 화면을 탭하면 태깅된 상품으로 바로 넘어간다. Flutter 앱, React 백오피스, 결제, " +
-      "정산, 그리고 공식 승인된 Meta Graph API 연동까지 갖춘 완결형 플랫폼. 백오피스에는 정산 통합 " +
-      "테스트를 포함한 SQL 83개 파일이 들어 있다. 직접 경쟁자는 두어스(MAU 70만·시리즈A 100억)였고, " +
-      "차별점은 '보다가 끊기지 않고 사는' 동선이었다. 도메인이 만료되어 지금은 링크 없이 기록과 " +
-      "화면으로만 존재한다.",
-    stack: ["Flutter", "React", "TypeScript", "Supabase", "Cloudflare Workers", "R2", "Meta Graph API"],
-    source: "ventures/clozet.md",
-    links: [{ label: "clozet.my", kind: "gone", note: "도메인 만료" }],
-    code: {
-      lines: 92207,
-      files: 249,
-      commits: 198,
-      period: "2025.07 — 2026.07",
-      breakdown: "Flutter 앱 33,702줄 · 백오피스 56,304줄 · 랜딩 2,201줄",
-    },
-    shots: [
-      { src: "/portfolio/clozet-tagging.jpg", alt: "Clozet 상품 태깅 화면", caption: "영상 위 상품 태깅 — 탭하면 바로 구매로" },
-      { src: "/portfolio/clozet-marketplace.jpg", alt: "Clozet 브랜드 마켓플레이스", caption: "브랜드 마켓플레이스" },
-      { src: "/portfolio/clozet-dashboard.png", alt: "Clozet 백오피스 대시보드", caption: "백오피스 대시보드" },
-      { src: "/portfolio/clozet-settlement.png", alt: "Clozet 정산 화면", caption: "정산 — SQL 통합 테스트까지 작성" },
-      { src: "/portfolio/clozet-creators.jpg", alt: "Clozet 크리에이터 수익 화면", caption: "크리에이터 커미션" },
-    ],
-  },
-  {
     name: "Green Apple / Red Apple",
     year: "2026.05 — 2026.07",
     oneLiner: "기록이 아니라 처방하는 AI 헬스 코치. 전날 식단에 따라 오늘 운동량이 바뀐다.",
@@ -117,35 +116,6 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    name: "Share2DM",
-    year: "2026.02 — 2026.04",
-    oneLiner: "ManyChat을 뒤집은 인스타 DM 자동화 SaaS — 댓글이 아니라 공유로 발동한다.",
-    status: "개발 완료 · 온라인",
-    stage: "shipped",
-    role: "단독 개발 — 엣지 워커, DB 스키마, 대시보드",
-    detail:
-      "ManyChat은 댓글을 달아야 DM 자동화가 발동한다. 그런데 사람들은 댓글을 잘 안 쓰고, 댓글 단 " +
-      "계정의 90%가 부계정이었다 — 자기 노출을 싫어한다는 뜻이다. 그래서 댓글이 아니라 'DM으로 " +
-      "공유하면 링크를 보내주는' 방향으로 뒤집었다. 관찰 하나가 제품의 존재 이유가 된 경우다.",
-    stack: ["Cloudflare Workers", "TypeScript", "React", "Supabase", "R2"],
-    source: "ventures/share2dm.md",
-    links: [
-      { label: "share2dm.xyz", href: "https://share2dm.xyz", kind: "live" },
-      {
-        label: "github.com/aintnpc/React-share2DM",
-        href: "https://github.com/aintnpc/React-share2DM",
-        kind: "repo",
-      },
-    ],
-    code: {
-      lines: 8363,
-      files: 70,
-      commits: 78,
-      period: "2026.02 — 2026.04",
-      breakdown: "TSX 3,676줄 · TS 3,533줄 · SQL 1,016줄",
-    },
-  },
-  {
     name: "brane",
     year: "2026.07 — 진행 중",
     oneLiner: "AI 대화 로그를 소화해 개념 그래프로 만드는 기억 원장.",
@@ -169,34 +139,6 @@ export const PROJECTS: Project[] = [
       period: "2026.07 — 2026.08",
       breakdown: "TSX 1,829줄 · TS 1,308줄 — 원장 데이터는 별도 저장소",
     },
-  },
-  {
-    name: "PEGASUS",
-    year: "2026.08",
-    oneLiner: "Fan-in-Wing eVTOL의 물리적 한계를 정량화하고, 자기 시장 가설 5개를 전부 기각한 기록.",
-    status: "설계·검증 완결 — 결론은 '이 형상으로는 안 된다'",
-    stage: "design",
-    role: "단독 — 방정식 유도, 파라메트릭 모델, 시장 검증",
-    detail:
-      "FIW 지배 방정식이 정리된 형태로 공개된 곳이 없어 직접 유도했다. 결론: 매립 조건에서 순항 속도는 " +
-      "호버 비출력에 정비례로 묶이고, Joby 급 속도(89 m/s)를 내려면 전기 추진계 출력밀도가 5.2배 " +
-      "올라야 한다. FAA Part 108 규칙 원문 647쪽을 파싱해 규제·원가 불연속을 따졌고, 세운 시장 가설 " +
-      "5개가 전부 '경쟁자보다 나은가' 필터에서 무너지는 것을 스스로 확인해 기록으로 남겼다. " +
-      "성공 사례가 아니라 기각 기록이라서 여기 있다.",
-    stack: ["Python", "OpenVSP", "파라메트릭 설계", "공력 해석"],
-    source: "ventures/pegasus.md",
-    links: [{ label: "비공개 저장소", kind: "gone", note: "로컬 전용 — 요청 시 열람" }],
-    code: {
-      lines: 3196,
-      files: 22,
-      commits: 4,
-      period: "2026.08",
-      breakdown: "Python 3,196줄(src) + 유도·시장분석 문서 1,416줄 — OpenVSP 툴체인 제외",
-    },
-    shots: [
-      { src: "/portfolio/pegasus-threeview.png", alt: "PEGASUS S0 삼면도", caption: "S0 형상 삼면도" },
-      { src: "/portfolio/pegasus-shape.png", alt: "PEGASUS 형상 검토", caption: "형상 검토 — 팬 매립 두께 병목" },
-    ],
   },
   {
     name: "운동의정석",
@@ -259,10 +201,17 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-/** Aggregate of the CodeStats above — stated on the page, so it must add up. */
+/**
+ * Aggregate across the case studies and the index — stated in the header, so it
+ * has to equal the per-entry figures a reader can add up themselves.
+ */
 export const CODE_TOTAL = {
-  lines: PROJECTS.reduce((n, p) => n + (p.code?.lines ?? 0), 0),
-  commits: PROJECTS.reduce((n, p) => n + (p.code?.commits ?? 0), 0),
+  lines:
+    PROJECTS.reduce((n, p) => n + (p.code?.lines ?? 0), 0) +
+    CASES.reduce((n, c) => n + c.code.lines, 0),
+  commits:
+    PROJECTS.reduce((n, p) => n + (p.code?.commits ?? 0), 0) +
+    CASES.reduce((n, c) => n + (c.code.commits ?? 0), 0),
 };
 
 export interface StackGroup {
