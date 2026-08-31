@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { PROJECTS, TRAJECTORY, TIMELINE, STACK, EDUCATION, MARKS, CODE_TOTAL } from "@/lib/portfolio";
 import { CASES } from "@/lib/cases";
 import EvidenceLink from "@/components/EvidenceLink";
+import AskBrane from "@/components/AskBrane";
 
 export const metadata: Metadata = {
   title: "Jaewon Kim — Portfolio",
@@ -71,30 +72,20 @@ export default function PortfolioPage() {
         <Link href="/web" className="hover:underline">brane 열기</Link>
       </nav>
 
-      {/* ── hero ─────────────────────────────────────────── */}
-      <header>
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl" style={{ color: "var(--text-primary)" }}>
-          김재원
-        </h1>
-        <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
-          Jaewon Kim · {EDUCATION.school} {EDUCATION.major} ({EDUCATION.status})
-        </p>
-
-        <p className="mt-9 text-xl leading-relaxed sm:text-2xl" style={{ color: "var(--text-primary)" }}>
-          앱, 백오피스, 결제, 인프라까지 혼자 만든다.
-          <br />
-          2022년부터 {CODE_TOTAL.lines.toLocaleString()}줄.
-        </p>
-        <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          아래 네 건은 그중 판단이 필요했던 문제다. 정산이 195만원 어긋난 이유를 역추적한 기록,
-          eVTOL 형상이 물리적으로 불가능하다는 걸 유도해 스스로 접은 기록, 남이 정한 rate limit 위에서
-          멀티테넌트 큐를 돌린 기록, 그리고 잘 만들어놓고 팔지 못한 기록. 마지막 건이 지금 고치고
-          있는 문제다.
-        </p>
-      </header>
+      <AskBrane />
 
       {/* ── marks ────────────────────────────────────────── */}
-      <ul className="mt-12 grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="mt-24">
+        <Kicker>만든 것</Kicker>
+        <p className="mt-3 text-lg leading-relaxed sm:text-xl" style={{ color: "var(--text-primary)" }}>
+          앱, 백오피스, 결제, 인프라까지 혼자 만든다.
+        </p>
+        <p className="mt-2 font-mono text-xs" style={{ color: "var(--text-muted)" }}>
+          2022 — 2026 · 저작 코드 {CODE_TOTAL.lines.toLocaleString()}줄 (vendored 제외)
+        </p>
+      </div>
+
+      <ul className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-6">
         {MARKS.map((m) => (
           <li key={m.name}>
             <a href={m.href} className="group block">
