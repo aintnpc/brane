@@ -23,6 +23,8 @@ export interface CVEntry {
   /** honest end state */
   outcome: string;
   scale?: string;
+  /** authored lines, for the total stated in the header */
+  lines?: number;
   /** bundle relPath for the ledger link */
   source?: string;
   links?: { label: string; href?: string; kind: "live" | "repo" | "gone"; note?: string }[];
@@ -50,7 +52,7 @@ export const CV: CVEntry[] = [
     outcome:
       "구축 완료. 실사용자 확보 단계에는 도달하지 못했고 시드 데이터로 운영을 검증했다. 현재 도메인 만료.",
     scale: "93,840줄 · 252파일 · 커밋 198",
-    source: "ventures/clozet.md",
+    lines: 93840,    source: "ventures/clozet.md",
     links: [{ label: "clozet.my", kind: "gone", note: "도메인 만료" }],
     shots: [
       { src: "/portfolio/clozet-tagging.jpg", alt: "Clozet 상품 태깅", caption: "영상 위 상품 태깅" },
@@ -80,8 +82,8 @@ export const CV: CVEntry[] = [
     outcome:
       "Green은 App Store 출시까지 도달했고 낯선 사용자의 결제가 1건 발생했으나 유입 경로를 추적하지 못했다. " +
       "현재 리스팅 만료. Red는 MVP 완성 후 대기.",
-    scale: "42,691줄 · 171파일 · 앱 3 + 패키지 3",
-    source: "ventures/green-apple.md",
+    scale: "42,668줄 · 170파일 · 앱 3 + 패키지 3",
+    lines: 42668,    source: "ventures/green-apple.md",
     links: [
       { label: "onfit.run", href: "https://onfit.run", kind: "live", note: "랜딩" },
       {
@@ -109,8 +111,8 @@ export const CV: CVEntry[] = [
     ],
     stack: ["Cloudflare Workers", "TypeScript", "React", "Supabase", "R2", "Toss Payments"],
     outcome: "개발 완료 및 온라인 운영 중. 유료 고객 확보 단계에는 도달하지 못했다.",
-    scale: "8,363줄 · 70파일 · 커밋 78",
-    source: "ventures/share2dm.md",
+    scale: "8,308줄 · 68파일 · 커밋 78",
+    lines: 8308,    source: "ventures/share2dm.md",
     links: [
       { label: "share2dm.xyz", href: "https://share2dm.xyz", kind: "live" },
       { label: "github.com/aintnpc/React-share2DM", href: "https://github.com/aintnpc/React-share2DM", kind: "repo" },
@@ -133,37 +135,11 @@ export const CV: CVEntry[] = [
     ],
     stack: ["Next.js", "TypeScript", "Anthropic SDK", "Vercel", "react-force-graph"],
     outcome: "brane.my에서 운영 중. 대화 로그 1,082개가 개념 문서 25개로 소화돼 있다.",
-    scale: "3,566줄 · 33파일 · 커밋 23",
-    source: "architecture/brane.md",
+    scale: "4,156줄 · 37파일 · 커밋 29",
+    lines: 4156,    source: "architecture/brane.md",
     links: [
       { label: "brane.my", href: "/web", kind: "live", note: "지금 이 사이트" },
       { label: "github.com/aintnpc/brane", href: "https://github.com/aintnpc/brane", kind: "repo" },
-    ],
-  },
-  {
-    name: "PEGASUS — eVTOL 개념설계",
-    period: "2026.08",
-    summary:
-      "리프트 팬을 날개 안에 매립하는 Fan-in-Wing 형상이 실제로 가능한지 판정한 설계·분석 프로젝트. " +
-      "정리된 지배 방정식이 공개된 곳이 없어 직접 유도했다.",
-    role: "단독 — 방정식 유도, 파라메트릭 모델링, 규제·시장 분석",
-    work: [
-      "매립 조건 유도: 팬 면적비가 익면하중과 디스크 로딩의 비로만 결정되고 중량이 소거됨을 확인",
-      "순항 속도 상한을 호버 비출력의 함수로 정리, 실기(Joby·Archer·Beta)와 대조",
-      "OpenVSP 기반 파라메트릭 형상 모델 및 공력 해석 스크립트 작성",
-      "크랭크드 윙으로 팬 수납 두께 확보 (52mm → 84mm, L/D 손실 1.7%)",
-      "FAA Part 108 규칙 원문 647쪽 파싱해 규제·원가 불연속 분석",
-      "시장 가설 5개 수립 후 전부 기각, 근거를 문서로 기록",
-    ],
-    stack: ["Python", "OpenVSP", "공력 해석", "규제 분석"],
-    outcome:
-      "결론은 '이 형상으로는 안 된다'. 자기 가설을 기각한 기록이라 남겼다.",
-    scale: "Python 3,196줄 · 22파일 + 분석 문서 1,416줄 (OpenVSP 툴체인 제외)",
-    source: "ventures/pegasus.md",
-    links: [{ label: "비공개 저장소", kind: "gone", note: "로컬 전용 · 요청 시 열람" }],
-    shots: [
-      { src: "/portfolio/pegasus-threeview.png", alt: "PEGASUS 삼면도", caption: "S0 삼면도" },
-      { src: "/portfolio/pegasus-shape.png", alt: "PEGASUS 형상 검토", caption: "팬 매립 두께 검토" },
     ],
   },
   {
@@ -183,24 +159,5 @@ export const CV: CVEntry[] = [
       "수익화를 풀지 못한 상태에서 병역으로 중단됐다. 4년 뒤 Green/Red Apple의 출발점이 됐다.",
     source: "ventures/green-apple.md",
     links: [{ label: "서비스 종료", kind: "gone", note: "2022년 중단" }],
-  },
-  {
-    name: "HYRE — 채용 검증 레이어",
-    period: "2026 — 컨셉",
-    summary:
-      "AI가 산출물을 대신 만드는 시대에는 결과물로 사람을 검증할 수 없다. 후보자의 실제 작업 기록과 " +
-      "대화 로그를 증거층으로 두고, 주장과 교차 검증하는 채용 구조.",
-    role: "단독 기획",
-    work: [
-      "문제 정의: 지원자 데이터는 상수인데 회사·직무마다 포장지를 다시 만드는 구조적 낭비",
-      "AI로 포장지 생성 비용이 0이 되면서 문제가 '생산의 낭비'에서 '검증의 불가능'으로 이동한다는 진단",
-      "검증 2축 설계: 산출물 실검증(코드·커밋·문서) + AI 인터뷰(판단의 이유)",
-      "선별권을 코드로 구현 — 무엇을 누구에게 열지 후보자가 정하는 fail-closed 공개 경계",
-      "이 포트폴리오가 그 파이프라인의 첫 출력물",
-    ],
-    stack: ["컨셉", "brane 기반"],
-    outcome: "컨셉 단계. 이 페이지 자체가 첫 산출물이자 검증 대상.",
-    source: "ventures/hyre.md",
-    links: [{ label: "이 페이지", href: "/portfolio", kind: "live" }],
   },
 ];

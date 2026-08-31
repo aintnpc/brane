@@ -1,4 +1,4 @@
-import { CASES } from "./cases";
+import { CV } from "./cv";
 
 // Curated portfolio content.
 //
@@ -7,11 +7,9 @@ import { CASES } from "./cases";
 // 1. Every claim traces to something checkable — a bundle concept (linked via
 //    /web?open=…), a raw archive log (gated by lib/visibility.ts), a live URL,
 //    a public repo, or a number counted off the filesystem.
-// 2. Counts exclude vendored code. PEGASUS ships the OpenVSP 3.51.2 toolchain,
-//    which alone is ~88k lines of Python; counting it would turn a 3.2k-line
-//    project into a 92k-line one. The same applies to Pods, node_modules, and
-//    .venv elsewhere. An inflated number is worse than no number, because the
-//    whole argument here is that the record can be checked.
+// 2. Counts exclude vendored and generated trees — Pods, node_modules, .venv,
+//    build output. An inflated number is worse than no number, because the whole
+//    argument here is that the record can be checked.
 //
 // Status strings come from each venture doc's own frontmatter, unrewritten.
 // "도메인 만료", "App Store 리스팅 만료", "파킹" stay in.
@@ -36,13 +34,12 @@ export interface Mark {
 
 /** The strip at the top: what got built, at a glance, before any reading. */
 export const MARKS: Mark[] = [
-  { name: "Clozet", href: "#clozet", src: "/portfolio/marks/clozet.png", bg: "#ffffff", kicker: "커머스 플랫폼" },
-  { name: "PEGASUS", href: "#others", bg: "#111114", fg: "#e4e4e7", kicker: "eVTOL 개념설계" },
-  { name: "Share2DM", href: "#share2dm", src: "/portfolio/marks/share2dm.png", bg: "#f7f7f8", kicker: "DM 자동화" },
-  { name: "Green Apple", href: "#green-apple", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
-  { name: "Red Apple", href: "#green-apple", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
-  { name: "brane", href: "#others", src: "/portfolio/marks/brane.png", bg: "#f4f4f5", kicker: "기억 원장" },
-  { name: "운동의정석", href: "#others", bg: "#ffffff", fg: "#4a9d6e", kicker: "첫 피트니스 앱 · 2022" },
+  { name: "Clozet", href: "#work", src: "/portfolio/marks/clozet.png", bg: "#ffffff", kicker: "커머스 플랫폼" },
+  { name: "Share2DM", href: "#work", src: "/portfolio/marks/share2dm.png", bg: "#f7f7f8", kicker: "DM 자동화" },
+  { name: "Green Apple", href: "#work", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
+  { name: "Red Apple", href: "#work", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
+  { name: "brane", href: "#work", src: "/portfolio/marks/brane.png", bg: "#f4f4f5", kicker: "기억 원장" },
+  { name: "운동의정석", href: "#work", bg: "#ffffff", fg: "#4a9d6e", kicker: "첫 피트니스 앱 · 2022" },
 ];
 
 export interface ProjectLink {
@@ -84,90 +81,10 @@ export interface Project {
   shots?: Shot[];
 }
 
-export const PROJECTS: Project[] = [
-  {
-    name: "PEGASUS",
-    year: "2026.08",
-    oneLiner: "Fan-in-Wing eVTOL 개념설계 — 자기 시장 가설 5개를 데이터로 기각한 기록.",
-    status: "설계·검증 완결 · 결론은 '이 형상으로는 안 된다'",
-    stage: "design",
-    role: "단독 — 방정식 유도, 파라메트릭 모델, 규제 분석",
-    detail:
-      "리프트 팬을 날개에 매립하는 형상이 가능한지 판정하려는데 정리된 지배 방정식이 없어 직접 유도했다. " +
-      "매립 조건에서 중량이 소거되고 순항 속도가 호버 비출력에 정비례로 묶인다는 결과가 나왔다. " +
-      "FAA Part 108 원문 647쪽을 파싱해 규제·원가도 따졌다. 세운 시장 가설 5개가 전부 '경쟁자보다 " +
-      "나은가'에서 무너지는 것을 확인하고 프로젝트를 접었다. 성공 사례가 아니라 기각 기록이라 남겼다.",
-    stack: ["Python", "OpenVSP", "파라메트릭 설계", "규제 분석"],
-    source: "ventures/pegasus.md",
-    links: [{ label: "비공개 저장소", kind: "gone", note: "로컬 전용 · 요청 시 열람" }],
-    code: {
-      lines: 3196,
-      files: 22,
-      commits: 4,
-      period: "2026.08",
-      breakdown: "Python 3,196줄(src) + 유도·시장분석 문서 1,416줄 · OpenVSP 툴체인 88k줄 제외",
-    },
-  },
-  {
-    name: "brane",
-    year: "2026.07 — 진행 중",
-    oneLiner: "AI 대화 로그를 소화해 개념 그래프로 만드는 기억 원장.",
-    status: "운영 중 — 이 사이트가 그 위에서 돈다",
-    stage: "shipped",
-    role: "단독 설계·개발 — 읽기/쓰기 경로, 그래프, 공개 경계",
-    detail:
-      "2022년부터 쌓인 1,082개 대화 로그가 25개 개념 문서로 소화돼 있고, 모든 문장에 원본 인용이 붙는다. " +
-      "쓰기 경로는 NEW/UPDATE/REFINE/QUESTION 판정을 내리는 LLM 캐스케이드이고, 읽기 경로는 " +
-      "필요할 때만 인용 원본까지 따라 들어간다. 지금 보고 있는 이 포트폴리오도 그 원장에서 나왔다.",
-    stack: ["Next.js", "TypeScript", "Anthropic SDK", "Vercel"],
-    source: "architecture/brane.md",
-    links: [
-      { label: "brane.my", href: "/web", kind: "live", note: "지금 이 사이트" },
-      { label: "github.com/aintnpc/brane", href: "https://github.com/aintnpc/brane", kind: "repo" },
-    ],
-    code: {
-      lines: 3198,
-      files: 32,
-      commits: 19,
-      period: "2026.07 — 2026.08",
-      breakdown: "TSX 1,829줄 · TS 1,308줄 — 원장 데이터는 별도 저장소",
-    },
-  },
-  {
-    name: "운동의정석",
-    year: "2022",
-    oneLiner: "3인 팀으로 만든 첫 피트니스 앱. 모든 헬스 작업의 출발점.",
-    status: "군 복무로 중단",
-    stage: "shipped",
-    role: "팀 리드 (3인)",
-    detail:
-      "광고비 약 30만원으로 1주일 만에 약 1,000명(759명 언급) 유저를 모았고 피드백은 전원 긍정이었다. " +
-      "수익화를 풀지 못한 채 병역으로 중단됐다. 전작 유저가 남긴 개선 요청 중 '증량 수요'가 " +
-      "4년 뒤 Red Apple의 착안점이 됐다.",
-    stack: ["모바일", "3인 팀"],
-    source: "ventures/green-apple.md",
-    links: [{ label: "서비스 종료", kind: "gone", note: "2022년 중단" }],
-  },
-  {
-    name: "HYRE",
-    year: "2026",
-    oneLiner: "채용의 검증 레이어 — 산출물이 아니라 과정을 읽는다.",
-    status: "컨셉 단계 · 이 포트폴리오를 만든 방법",
-    stage: "design",
-    role: "단독 기획",
-    detail:
-      "AI가 산출물을 대신 만드는 시대에는 산출물의 신호 가치가 죽고 과정만 남는다. brane이 과정의 " +
-      "기록계라면 HYRE는 그 기록을 읽는 채용 시장이다. 주장의 층(인터뷰)과 증거의 층(원장)을 교차 " +
-      "검증하고, 무엇을 누구에게 열지는 후보자가 고른다. 이 페이지가 그 파이프라인의 첫 출력물이다.",
-    stack: ["컨셉", "brane 기반"],
-    source: "ventures/hyre.md",
-    links: [{ label: "이 페이지", kind: "live", href: "/portfolio" }],
-  },
-];
-
 /**
- * Aggregate across the case studies and the index — stated in the header, so it
- * has to equal the per-entry figures a reader can add up themselves.
+ * Stated in the header, so it has to equal the per-entry figures a reader can
+ * add up from the résumé itself — plus the two rewrites that are cited inside
+ * case studies but have no entry of their own.
  */
 /**
  * Written before the Green Apple rewrite and cited inside that case study, so it
@@ -181,13 +98,7 @@ const LYFE_LINES = 36211;
 
 export const CODE_TOTAL = {
   lines:
-    PROJECTS.reduce((n, p) => n + (p.code?.lines ?? 0), 0) +
-    CASES.reduce((n, c) => n + c.code.lines, 0) +
-    REFINE_LINES +
-    LYFE_LINES,
-  commits:
-    PROJECTS.reduce((n, p) => n + (p.code?.commits ?? 0), 0) +
-    CASES.reduce((n, c) => n + (c.code.commits ?? 0), 0),
+    CV.reduce((n, e) => n + (e.lines ?? 0), 0) + REFINE_LINES + LYFE_LINES,
 };
 
 export interface StackGroup {
@@ -217,7 +128,6 @@ export const TIMELINE: TimelineEntry[] = [
   { period: "2026.02", title: "Share2DM", note: "Clozet의 유입 엔진이자 독립 SaaS. 2개월 만에 온라인.", kind: "work" },
   { period: "2026.05", title: "Green / Red Apple", note: "모노레포로 앱 2종. Green은 App Store 도달.", kind: "work" },
   { period: "2026.07", title: "brane", note: "4년치 AI 대화 로그를 원장으로. 현재 운영 중.", kind: "work" },
-  { period: "2026.08", title: "PEGASUS", note: "eVTOL 물리 한계 정량화. 자기 가설 5개를 기각.", kind: "work" },
 ];
 
 export const EDUCATION = {

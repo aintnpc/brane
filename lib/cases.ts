@@ -106,11 +106,11 @@ export const CASES: CaseStudy[] = [
     capability: "돈을 다루는 로직의 결함을 출시 전에 잡아내고, 증상이 아니라 상태 소유권 수준에서 고친다.",
     source: "ventures/clozet.md",
     code: {
-      lines: 92207,
-      files: 249,
+      lines: 93840,
+      files: 252,
       commits: 198,
       period: "2025.07 — 2026.07",
-      breakdown: "Flutter 앱 33,702줄 · 백오피스 56,304줄(SQL 83파일) · 랜딩 2,201줄",
+      breakdown: "Flutter 앱 35,389줄 · 백오피스 56,277줄(SQL 83파일) · 랜딩 2,174줄",
     },
     links: [{ label: "clozet.my", kind: "gone", note: "도메인 만료" }],
     shots: [
@@ -123,7 +123,7 @@ export const CASES: CaseStudy[] = [
     project: "Share2DM",
     mark: "/portfolio/marks/share2dm.png",
     title: "남의 rate limit 위에서 큐를 돌리기",
-    period: "2026.02 — 2026.04 · TypeScript 8,363줄",
+    period: "2026.02 — 2026.04 · TypeScript 8,308줄",
     stakes: "DM 발송량은 Meta가 정한다. 우리가 정하는 건 그 한도에 어떻게 부딪히느냐뿐이다.",
     sections: [
       {
@@ -159,11 +159,11 @@ export const CASES: CaseStudy[] = [
     capability: "외부 rate limit과 무료 티어라는 제약을 설계 입력으로 두고, 멀티테넌트 큐와 비용 임계를 미리 계산한다.",
     source: "ventures/share2dm.md",
     code: {
-      lines: 8363,
-      files: 70,
+      lines: 8308,
+      files: 68,
       commits: 78,
       period: "2026.02 — 2026.04",
-      breakdown: "TSX 3,676줄 · TS 3,533줄 · SQL 1,016줄",
+      breakdown: "TSX 3,676줄 · TS 3,533줄 · SQL 1,014줄",
     },
     links: [
       { label: "share2dm.xyz", href: "https://share2dm.xyz", kind: "live" },
@@ -174,7 +174,7 @@ export const CASES: CaseStudy[] = [
     project: "Green Apple / Red Apple",
     mark: "/portfolio/marks/green-apple.png",
     title: "잘 만들었고, 팔지 않았다",
-    period: "2026.05 — 2026.07 · TypeScript 42,691줄 · 앱 3 + 공용 패키지 3",
+    period: "2026.05 — 2026.07 · TypeScript 42,668줄 · 앱 3 + 공용 패키지 3",
     stakes: "App Store까지 갔고 낯선 사람의 결제가 1건 났다. 그게 전부다. 왜 1건인지가 이 글의 내용이다.",
     sections: [
       {
@@ -201,7 +201,7 @@ export const CASES: CaseStudy[] = [
           "결정이 한꺼번에 걸려 있어서 기존 코드를 고치는 쪽이 더 비쌌다.",
         code: `re:fine (Flutter)     37,282줄   구독 티어별 Gemini Flash/Pro
    ↓ 재작성
-Green/Red Apple (RN)  42,691줄   RevenueCat · 영어권 우선`,
+Green/Red Apple (RN)  42,668줄   RevenueCat · 영어권 우선`,
       },
       {
         h: "한 줄이 제품을 정의했다",
@@ -244,11 +244,11 @@ Green/Red Apple (RN)  42,691줄   RevenueCat · 영어권 우선`,
       "자기 실패 양식을 구조로 진단하고, 의지가 아니라 시스템으로 고친다. 지금 고치고 있는 건 유통이다.",
     source: "ventures/green-apple.md",
     code: {
-      lines: 42691,
-      files: 171,
+      lines: 42668,
+      files: 170,
       commits: 2,
       period: "2026.05 — 2026.07",
-      breakdown: "TSX 26,665줄 · TS 13,711줄 · SQL 1,432줄 · 앱 3 + 패키지 3",
+      breakdown: "TSX 26,665줄 · TS 13,711줄 · SQL 1,431줄 · 앱 3 + 패키지 3",
     },
     links: [
       { label: "onfit.run", href: "https://onfit.run", kind: "live", note: "랜딩" },
