@@ -37,11 +37,12 @@ export interface Mark {
 /** The strip at the top: what got built, at a glance, before any reading. */
 export const MARKS: Mark[] = [
   { name: "Clozet", href: "#clozet", src: "/portfolio/marks/clozet.png", bg: "#ffffff", kicker: "커머스 플랫폼" },
-  { name: "PEGASUS", href: "#pegasus", bg: "#111114", fg: "#e4e4e7", kicker: "eVTOL 개념설계" },
+  { name: "PEGASUS", href: "#others", bg: "#111114", fg: "#e4e4e7", kicker: "eVTOL 개념설계" },
   { name: "Share2DM", href: "#share2dm", src: "/portfolio/marks/share2dm.png", bg: "#f7f7f8", kicker: "DM 자동화" },
   { name: "Green Apple", href: "#green-apple", src: "/portfolio/marks/green-apple.png", bg: "#fafafa", kicker: "다이어트 코치" },
   { name: "Red Apple", href: "#green-apple", src: "/portfolio/marks/red-apple.png", bg: "#0a0a0a", kicker: "웨이트 코치" },
   { name: "brane", href: "#others", src: "/portfolio/marks/brane.png", bg: "#f4f4f5", kicker: "기억 원장" },
+  { name: "운동의정석", href: "#others", bg: "#ffffff", fg: "#4a9d6e", kicker: "첫 피트니스 앱 · 2022" },
 ];
 
 export interface ProjectLink {
@@ -84,6 +85,29 @@ export interface Project {
 }
 
 export const PROJECTS: Project[] = [
+  {
+    name: "PEGASUS",
+    year: "2026.08",
+    oneLiner: "Fan-in-Wing eVTOL 개념설계 — 자기 시장 가설 5개를 데이터로 기각한 기록.",
+    status: "설계·검증 완결 · 결론은 '이 형상으로는 안 된다'",
+    stage: "design",
+    role: "단독 — 방정식 유도, 파라메트릭 모델, 규제 분석",
+    detail:
+      "리프트 팬을 날개에 매립하는 형상이 가능한지 판정하려는데 정리된 지배 방정식이 없어 직접 유도했다. " +
+      "매립 조건에서 중량이 소거되고 순항 속도가 호버 비출력에 정비례로 묶인다는 결과가 나왔다. " +
+      "FAA Part 108 원문 647쪽을 파싱해 규제·원가도 따졌다. 세운 시장 가설 5개가 전부 '경쟁자보다 " +
+      "나은가'에서 무너지는 것을 확인하고 프로젝트를 접었다. 성공 사례가 아니라 기각 기록이라 남겼다.",
+    stack: ["Python", "OpenVSP", "파라메트릭 설계", "규제 분석"],
+    source: "ventures/pegasus.md",
+    links: [{ label: "비공개 저장소", kind: "gone", note: "로컬 전용 · 요청 시 열람" }],
+    code: {
+      lines: 3196,
+      files: 22,
+      commits: 4,
+      period: "2026.08",
+      breakdown: "Python 3,196줄(src) + 유도·시장분석 문서 1,416줄 · OpenVSP 툴체인 88k줄 제외",
+    },
+  },
   {
     name: "brane",
     year: "2026.07 — 진행 중",

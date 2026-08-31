@@ -86,7 +86,7 @@ export default function AskBrane() {
           김재원
         </h1>
         <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
-          Jaewon Kim · Stony Brook University Computer Science (휴학 중)
+          Jaewon Kim · Stony Brook University (한국뉴욕주립대학교) Computer Science · 휴학 중
         </p>
 
         <p className="mt-8 text-lg leading-relaxed sm:text-xl" style={{ color: "var(--text-primary)" }}>
@@ -94,6 +94,7 @@ export default function AskBrane() {
         </p>
         <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
           답은 brane이 소화한 원장에서 나오고, 문장에 붙은 📎를 누르면 그 근거가 된 원본이 열립니다.
+          <br />
           찾는 사람이 직접 묻는 편이, 지원자가 미리 짐작해 쓴 글보다 정확합니다.
         </p>
       </div>
@@ -113,7 +114,7 @@ export default function AskBrane() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             maxLength={400}
-            placeholder="어떤 사람을 찾고 계신가요?"
+            placeholder="김재원에 대해 물어보세요"
             className="min-w-0 flex-1 bg-transparent text-sm outline-none"
             style={{ color: "var(--text-primary)" }}
             aria-label="brane에게 질문하기"
@@ -190,7 +191,7 @@ export default function AskBrane() {
       )}
 
       <p className="mt-12 font-mono text-[0.65rem]" style={{ color: "var(--text-muted)" }}>
-        ↓ 스크롤하면 만든 것들
+        ↓ 지금까지 만든 것
       </p>
 
       {cite && (

@@ -5,7 +5,7 @@
 // "so what can he actually do". Breadth was doing all the work and none of it
 // was evidence.
 //
-// These four are written from the engineering records inside the repos — an
+// These three are written from the engineering records inside the repos — an
 // incident report, a derivation, a queue processor — because judgment is the
 // thing being shown, and judgment only exists in specifics.
 
@@ -117,62 +117,6 @@ export const CASES: CaseStudy[] = [
       { src: "/portfolio/clozet-settlement.png", alt: "Clozet 정산 화면", caption: "정산 화면 — 재생성·대조 대상" },
       { src: "/portfolio/clozet-dashboard.png", alt: "Clozet 대시보드", caption: "매출 집계 — 취소분이 섞여 있던 곳" },
       { src: "/portfolio/clozet-tagging.jpg", alt: "Clozet 상품 태깅", caption: "제품 본체: 영상 위 상품 태깅" },
-    ],
-  },
-  {
-    project: "PEGASUS",
-    title: "날개 안에 날개보다 큰 것을 넣을 수는 없다",
-    period: "2026.08 · Python 3,196줄 · 유도·시장분석 문서 1,416줄",
-    stakes: "1년 넘게 끌고 온 항공 벤처의 형상이 물리적으로 가능한지 판정하는 일.",
-    sections: [
-      {
-        h: "왜 직접 유도했나",
-        p:
-          "Fan-in-Wing은 리프트 팬을 날개 안에 매립하는 형상이다. 성능 한계를 정리한 자료를 " +
-          "찾지 못해 지배 방정식을 직접 세웠다. 목표는 예쁜 모델이 아니라 '이 형상이 어디서 " +
-          "막히는가'를 숫자로 아는 것이었다.",
-      },
-      {
-        h: "중량이 소거된다",
-        p:
-          "팬이 차지할 면적 비율은 익면하중과 디스크 로딩의 비로만 결정된다. 중량이 양변에서 " +
-          "사라진다. 구조와 도어를 빼면 팬은 날개 평면적의 35%를 넘을 수 없다. 실기에 대보면 " +
-          "Joby S4의 디스크 면적은 날개 면적의 1.6배다. 매립이 성립하지 않는다.",
-        code: "A/S = (W/S) / DL        ← 중량 W 가 소거된다\nW/S ≤ 0.35 × DL\n\nJoby S4      A/S = 1.60   매립 불가\nArcher       A/S = 1.45   불가\nPEGASUS 최선안 A/S = 0.60   매우 빡빡",
-      },
-      {
-        h: "속도가 호버 출력에 묶인다",
-        p:
-          "매립 조건, 최적 순항 속도, 호버 동력 세 식을 연립하면 공기밀도와 디스크 로딩이 " +
-          "소거되고 순항 상한이 호버 비출력 하나로 정리된다. Joby급 89 m/s를 매립으로 내려면 " +
-          "전기 추진계 출력밀도가 5.2배 올라야 한다. 설계를 잘해서 넘을 수 있는 벽이 아니다.",
-        code: "V_max ≈ 0.62 × (P/W)",
-      },
-      {
-        h: "그리고 스스로 기각했다",
-        p:
-          "형상 쪽은 답을 찾았다. 팬 수납을 막는 건 시위가 아니라 두께였고, 안쪽을 두껍게 " +
-          "바깥을 얇게 가는 크랭크드 윙으로 52mm를 84mm까지 벌렸다. L/D 손실은 1.7%. " +
-          "그런데 시장 가설 5개는 전부 같은 자리에서 무너졌다. 물리적으로 나는가, 미션을 " +
-          "수행하는가까지는 매번 통과하고 '경쟁자보다 나은가'에서 매번 탈락했다. 미션이 " +
-          "요구하는 방향과 매립이 요구하는 방향이 반대였다. 규제 쪽도 확인하려고 FAA Part 108 " +
-          "원문 647쪽을 파싱했다. 결론은 이 형상으로는 안 된다는 것이고, 그 결론을 지웠으면 " +
-          "여기 없었을 프로젝트다.",
-      },
-    ],
-    capability: "공개된 답이 없는 영역에서 지배 방정식을 세우고, 그 결과가 자기 아이디어를 죽여도 그대로 기록한다.",
-    source: "ventures/pegasus.md",
-    code: {
-      lines: 3196,
-      files: 22,
-      commits: 4,
-      period: "2026.08",
-      breakdown: "Python 3,196줄(src) + 문서 1,416줄 · OpenVSP 툴체인 88k줄 제외",
-    },
-    links: [{ label: "비공개 저장소", kind: "gone", note: "로컬 전용 · 요청 시 열람" }],
-    shots: [
-      { src: "/portfolio/pegasus-threeview.png", alt: "PEGASUS S0 삼면도", caption: "S0 삼면도" },
-      { src: "/portfolio/pegasus-shape.png", alt: "PEGASUS 형상 검토", caption: "팬 매립 두께 병목 검토" },
     ],
   },
   {

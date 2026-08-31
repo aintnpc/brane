@@ -1,17 +1,18 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { PROJECTS, TRAJECTORY, TIMELINE, STACK, EDUCATION, MARKS, CODE_TOTAL } from "@/lib/portfolio";
+import { TRAJECTORY, TIMELINE, STACK, EDUCATION, MARKS, CODE_TOTAL } from "@/lib/portfolio";
 import { CASES } from "@/lib/cases";
+import { CV } from "@/lib/cv";
 import EvidenceLink from "@/components/EvidenceLink";
 import AskBrane from "@/components/AskBrane";
+import ThemeToggle from "@/components/ThemeToggle";
+import WorkView from "@/components/WorkView";
 
 export const metadata: Metadata = {
   title: "Jaewon Kim — Portfolio",
-  description: "앱·백오피스·결제·인프라를 혼자 만든다. 판단이 필요했던 네 건과, 그 판단이 만들어진 과정.",
+  description: "앱·백오피스·결제·인프라를 혼자 만든다. 판단이 필요했던 세 건과, 그 판단이 만들어진 과정.",
 };
 
-const LINK_DOT: Record<string, string> = { live: "#22c55e", repo: "#a78bfa", gone: "#71717a" };
-const ANCHORS = ["clozet", "pegasus", "share2dm", "green-apple"];
 
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
@@ -21,55 +22,13 @@ function Kicker({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Links({ items }: { items?: { label: string; href?: string; kind: string; note?: string }[] }) {
-  if (!items?.length) return null;
-  return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-      {items.map((l) => {
-        const inner = (
-          <>
-            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: LINK_DOT[l.kind] }} aria-hidden />
-            <span>{l.label}</span>
-            {l.note && <span style={{ color: "var(--text-muted)" }}>({l.note})</span>}
-          </>
-        );
-        const cls = "flex items-center gap-1.5 font-mono text-[0.65rem]";
-        return l.href ? (
-          <a key={l.label} href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
-             className={`${cls} hover:underline`} style={{ color: "var(--text-primary)" }}>{inner}</a>
-        ) : (
-          <span key={l.label} className={cls} style={{ color: "var(--text-muted)" }}>{inner}</span>
-        );
-      })}
-    </div>
-  );
-}
-
-function Shots({ shots }: { shots?: { src: string; alt: string; caption: string }[] }) {
-  if (!shots?.length) return null;
-  return (
-    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {shots.map((s) => (
-        <figure key={s.src}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={s.src} alt={s.alt} loading="lazy"
-               className="h-36 w-full rounded-lg border object-contain p-1.5 sm:h-40"
-               style={{ borderColor: "var(--panel-border)", background: "var(--hover-bg)" }} />
-          <figcaption className="mt-1.5 text-[0.65rem] leading-snug" style={{ color: "var(--text-muted)" }}>
-            {s.caption}
-          </figcaption>
-        </figure>
-      ))}
-    </div>
-  );
-}
-
 export default function PortfolioPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-14 sm:px-8 sm:py-20" style={{ fontFamily: "var(--font-geist-sans)" }}>
       <nav className="mb-14 flex items-center gap-5 text-xs" style={{ color: "var(--text-muted)" }}>
         <Link href="/" className="hover:underline">← 처음</Link>
         <Link href="/web" className="hover:underline">brane 열기</Link>
+        <span className="ml-auto"><ThemeToggle /></span>
       </nav>
 
       <AskBrane />
@@ -109,137 +68,7 @@ export default function PortfolioPage() {
         ))}
       </ul>
 
-      {/* ── case studies ─────────────────────────────────── */}
-      <section className="mt-20">
-        <Kicker>선택 작업</Kicker>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
-          판단이 필요했던 네 건
-        </h2>
-
-        <div className="mt-14 space-y-24">
-          {CASES.map((c, i) => (
-            <article key={c.project} id={ANCHORS[i]} className="scroll-mt-8">
-              <div className="flex items-center gap-3">
-                <span
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
-                  style={{
-                    borderColor: "var(--panel-border)",
-                    background: c.mark ? "#ffffff" : "#111114",
-                  }}
-                >
-                  {c.mark ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={c.mark} alt="" className="max-h-5 max-w-5 object-contain" />
-                  ) : (
-                    <span className="font-mono text-[0.6rem] font-semibold" style={{ color: "#e4e4e7" }}>
-                      {c.project.slice(0, 2).toUpperCase()}
-                    </span>
-                  )}
-                </span>
-                <span className="font-mono text-xs tracking-wider" style={{ color: "var(--accent-text)" }}>
-                  {c.project.toUpperCase()}
-                </span>
-              </div>
-
-              <h3 className="mt-4 text-2xl font-semibold leading-snug tracking-tight" style={{ color: "var(--text-primary)" }}>
-                {c.title}
-              </h3>
-              <p className="mt-2 font-mono text-[0.7rem]" style={{ color: "var(--text-muted)" }}>{c.period}</p>
-              <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{c.stakes}</p>
-
-              <div className="mt-8 space-y-7">
-                {c.sections.map((s) => (
-                  <div key={s.h} className="grid gap-2 sm:grid-cols-[9rem_1fr] sm:gap-5">
-                    <h4 className="pt-0.5 font-mono text-xs leading-relaxed" style={{ color: "var(--accent-text)" }}>{s.h}</h4>
-                    <div>
-                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s.p}</p>
-                      {s.code && (
-                        <pre
-                          className="mt-3 overflow-x-auto rounded-lg border px-4 py-3 font-mono text-[0.7rem] leading-relaxed"
-                          style={{ borderColor: "var(--panel-border)", background: "var(--hover-bg)", color: "var(--text-primary)" }}
-                        >
-                          {s.code}
-                        </pre>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 border-l-2 py-1 pl-5" style={{ borderColor: "var(--accent-text)" }}>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>{c.capability}</p>
-              </div>
-
-              <div
-                className="mt-6 rounded-lg border px-4 py-3"
-                style={{ borderColor: "var(--panel-border)", background: "var(--hover-bg)" }}
-              >
-                <p className="font-mono text-xs" style={{ color: "var(--text-primary)" }}>
-                  {c.code.lines.toLocaleString()}줄 · {c.code.files}개 파일
-                  {c.code.commits ? ` · 커밋 ${c.code.commits}` : ""}
-                </p>
-                <p className="mt-1.5 font-mono text-[0.65rem] leading-relaxed" style={{ color: "var(--text-muted)" }}>
-                  {c.code.breakdown}
-                </p>
-              </div>
-
-              <Shots shots={c.shots} />
-              <Links items={c.links} />
-
-              <Link
-                href={`/web?open=${encodeURIComponent(c.source)}`}
-                className="mt-4 inline-block font-mono text-[0.65rem] hover:underline"
-                style={{ color: "var(--accent-text)" }}
-              >
-                원장에서 열기 →
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <hr className="my-20" style={{ borderColor: "var(--panel-border)" }} />
-
-      {/* ── index ────────────────────────────────────────── */}
-      <section id="others" className="scroll-mt-8">
-        <Kicker>그 외</Kicker>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
-          나머지 작업
-        </h2>
-        <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          만료된 것과 파킹된 것을 그대로 적었다. 상태는 원장에 기록된 문장이고 좋게 고쳐 쓰지 않았다.
-        </p>
-
-        <ol className="mt-10 divide-y" style={{ borderColor: "var(--panel-border)" }}>
-          {PROJECTS.map((p) => (
-            <li key={p.name} className="py-7 first:pt-0">
-              <div className="flex flex-wrap items-baseline gap-x-3">
-                <h3 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>{p.name}</h3>
-                <span className="font-mono text-xs" style={{ color: "var(--text-muted)" }}>{p.year}</span>
-              </div>
-              <p className="mt-1.5 text-sm" style={{ color: "var(--text-primary)" }}>{p.oneLiner}</p>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{p.detail}</p>
-              <p className="mt-2.5 text-xs" style={{ color: "var(--text-muted)" }}>
-                <span style={{ color: "var(--accent-text)" }}>{p.role}</span> · {p.status}
-                {p.code ? ` · ${p.code.lines.toLocaleString()}줄` : ""}
-              </p>
-              <Links items={p.links} />
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {p.stack.map((s) => (
-                  <span key={s} className="rounded border px-2 py-0.5 font-mono text-[0.65rem]"
-                        style={{ borderColor: "var(--panel-border)", color: "var(--text-muted)" }}>{s}</span>
-                ))}
-                {p.source && (
-                  <Link href={`/web?open=${encodeURIComponent(p.source)}`}
-                        className="ml-1 font-mono text-[0.65rem] hover:underline" style={{ color: "var(--accent-text)" }}>
-                    원장에서 열기 →
-                  </Link>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <WorkView cv={CV} cases={CASES} />
 
       <hr className="my-20" style={{ borderColor: "var(--panel-border)" }} />
 
