@@ -13,13 +13,14 @@
 
 /** Bundle concepts a stranger may read, by relPath. Everything else is private. */
 const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
-  // The ventures — the actual body of work.
-  "ventures/hyre.md",
+  // The ventures shown on the portfolio. pegasus and hyre are deliberately not
+  // here: the résumé dropped them, and a ledger that still serves them puts them
+  // back in the graph and in /api/ask answers, which is where they kept
+  // reappearing after being cut from the page.
   "ventures/brane.md", // may not exist; harmless if absent
   "ventures/clozet.md",
   "ventures/green-apple.md",
   "ventures/share2dm.md",
-  "ventures/pegasus.md",
   "ventures/playit.md",
   "ventures/befficient.md",
   // How the work gets done.
