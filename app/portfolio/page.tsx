@@ -34,7 +34,7 @@ export default function PortfolioPage() {
       <AskBrane />
 
       {/* ── marks ────────────────────────────────────────── */}
-      <div className="mt-24">
+      <div className="mt-16">
         <Kicker>만든 것</Kicker>
         <p className="mt-3 text-lg leading-relaxed sm:text-xl" style={{ color: "var(--text-primary)" }}>
           앱, 백오피스, 결제, 인프라까지 혼자 만든다.
@@ -74,8 +74,6 @@ export default function PortfolioPage() {
         ))}
       </ul>
 
-      <WorkView cv={CV} cases={CASES} />
-
       <hr className="my-20" style={{ borderColor: "var(--panel-border)" }} />
 
       {/* ── trajectory ───────────────────────────────────── */}
@@ -85,9 +83,9 @@ export default function PortfolioPage() {
           AI와 어떻게 일해왔는가
         </h2>
         <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          위의 판단들이 어디서 왔는지에 대한 기록이다. 2025년 4월부터 2026년 7월까지 IDE 코딩 세션
-          96개가 남아 있고(VS Code Copilot 67, Cursor 12, Claude Code 17), 거기서 뽑은 건 코드가 아니라
-          일하는 방식의 변화다. 인용은 전부 실제 프롬프트이고 클릭하면 원본 세션이 열린다.
+          2025년 4월부터 2026년 7월까지 IDE 코딩 세션 96개가 남아 있다(VS Code Copilot 67, Cursor 12,
+          Claude Code 17). 거기서 뽑은 건 코드가 아니라 일하는 방식의 변화다. 아래 프로젝트들의 판단이
+          어디서 왔는지에 대한 기록이기도 하다. 인용은 전부 실제 프롬프트이고, 클릭하면 원본 세션이 열린다.
         </p>
 
         <ol className="mt-10 space-y-9 border-l pl-6" style={{ borderColor: "var(--panel-border)" }}>
@@ -115,6 +113,10 @@ export default function PortfolioPage() {
           </Link>
         </p>
       </section>
+
+      <hr className="my-20" style={{ borderColor: "var(--panel-border)" }} />
+
+      <WorkView cv={CV} cases={CASES} />
 
       <hr className="my-20" style={{ borderColor: "var(--panel-border)" }} />
 

@@ -77,7 +77,7 @@ export default function AskBrane() {
   }
 
   return (
-    <section className="flex min-h-[88vh] flex-col justify-center">
+    <section className="flex min-h-[76vh] flex-col justify-center">
       <div>
         <h1
           className="text-4xl font-semibold tracking-tight sm:text-5xl"
@@ -190,7 +190,7 @@ export default function AskBrane() {
         </p>
       )}
 
-      <p className="mt-12 font-mono text-[0.65rem]" style={{ color: "var(--text-muted)" }}>
+      <p className="mt-10 font-mono text-[0.65rem]" style={{ color: "var(--text-muted)" }}>
         ↓ 지금까지 만든 것
       </p>
 

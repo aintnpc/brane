@@ -200,7 +200,7 @@ export default function WorkView({ cv, cases }: { cv: CVEntry[]; cases: CaseStud
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-mono text-[0.65rem] tracking-[0.2em]" style={{ color: "var(--accent-text)" }}>
-            {deep ? "PM · PO 심층" : "프로젝트"}
+            {deep ? "판단 기록" : "프로젝트"}
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
             {deep ? "판단이 필요했던 세 건" : "무엇을 만들었고 무엇을 했는가"}
@@ -209,8 +209,8 @@ export default function WorkView({ cv, cases }: { cv: CVEntry[]; cases: CaseStud
 
         <div className="flex gap-1 rounded-full border p-1" style={{ borderColor: "var(--panel-border)" }}>
           {[
-            { label: "전체 이력", on: false },
-            { label: "PM · PO 심층", on: true },
+            { label: "이력 요약", on: false },
+            { label: "판단 기록", on: true },
           ].map((t) => (
             <button
               key={t.label}

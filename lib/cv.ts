@@ -134,7 +134,7 @@ export const CV: CVEntry[] = [
       "공개 API에 IP당 분당 6회 rate limit 및 입력 길이 제한",
     ],
     stack: ["Next.js", "TypeScript", "Anthropic SDK", "Vercel", "react-force-graph"],
-    outcome: "brane.my에서 운영 중. 대화 로그 1,082개가 개념 문서 25개로 소화돼 있다.",
+    outcome: "brane.my에서 운영 중. 대화 로그 1,082개가 개념 문서로 소화돼 있고, 그중 11개를 공개했다.",
     scale: "4,156줄 · 37파일 · 커밋 29",
     lines: 4156,    source: "architecture/brane.md",
     links: [
