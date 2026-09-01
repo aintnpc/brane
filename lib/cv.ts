@@ -155,9 +155,12 @@ export const CV: CVEntry[] = [
     ],
     stack: ["모바일", "3인 팀"],
     outcome:
-      "광고비 약 30만원으로 1주일 만에 약 1,000명(759명 언급)을 확보했고 피드백은 긍정적이었으나, " +
+      "광고비 약 30만원으로 1주일 만에 759명을 확보했고 피드백은 긍정적이었으나, " +
       "수익화를 풀지 못한 상태에서 병역으로 중단됐다. 4년 뒤 Green/Red Apple의 출발점이 됐다.",
     source: "ventures/green-apple.md",
     links: [{ label: "서비스 종료", kind: "gone", note: "2022년 중단" }],
   },
 ];
+
+/** Sum of the entries above — the figure a reader gets adding them up by hand. */
+export const CV_VISIBLE_LINES = CV.reduce((n, e) => n + (e.lines ?? 0), 0);

@@ -13,8 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://brane.my"),
   title: "brane",
-  description: "your brane, browsable",
+  description: "AI 대화 로그를 소화해 개념 그래프로 만드는 기억 원장.",
+  openGraph: {
+    type: "website",
+    siteName: "brane",
+    title: "brane",
+    description: "AI 대화 로그를 소화해 개념 그래프로 만드는 기억 원장. 모든 문장에 원본 인용이 붙습니다.",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({

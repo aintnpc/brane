@@ -56,6 +56,15 @@ function redactPrivateLinks(content: string, fromRelPath: string): string {
   });
 }
 
+
+// gray-matter hands back a Date for an unquoted `timestamp: 2026-07-21`, and
+// String() on that is the full JS date string. Keep the form the file used.
+function normalizeTimestamp(value: unknown): string {
+  if (!value) return "";
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value);
+}
+
 function walkMarkdownFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -102,7 +111,7 @@ export function listConcepts(): ConceptFile[] {
       title: (data.title as string) ?? slug,
       description: (data.description as string) ?? "",
       tags: (data.tags as string[]) ?? [],
-      timestamp: data.timestamp ? String(data.timestamp) : "",
+      timestamp: normalizeTimestamp(data.timestamp),
       status: data.status as string | undefined,
       content: redactPrivateLinks(content, relPath),
     });
@@ -134,7 +143,7 @@ export function getConcept(relPath: string): ConceptFile | null {
     title: (data.title as string) ?? slug,
     description: (data.description as string) ?? "",
     tags: (data.tags as string[]) ?? [],
-    timestamp: data.timestamp ? String(data.timestamp) : "",
+    timestamp: normalizeTimestamp(data.timestamp),
     status: data.status as string | undefined,
     content: redactPrivateLinks(content, relPath),
   };

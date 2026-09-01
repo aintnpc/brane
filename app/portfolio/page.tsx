@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { TRAJECTORY, TIMELINE, STACK, EDUCATION, MARKS, CODE_TOTAL } from "@/lib/portfolio";
 import { CASES } from "@/lib/cases";
-import { CV } from "@/lib/cv";
+import { CV, CV_VISIBLE_LINES } from "@/lib/cv";
 import EvidenceLink from "@/components/EvidenceLink";
 import AskBrane from "@/components/AskBrane";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -40,7 +40,13 @@ export default function PortfolioPage() {
           앱, 백오피스, 결제, 인프라까지 혼자 만든다.
         </p>
         <p className="mt-2 font-mono text-xs" style={{ color: "var(--text-muted)" }}>
-          2022 — 2026 · 저작 코드 {CODE_TOTAL.lines.toLocaleString()}줄 (vendored 제외)
+          2022 — 2026 · 저작 코드 {CV_VISIBLE_LINES.toLocaleString()}줄 (vendored 제외)
+        </p>
+        <p className="mt-2 max-w-2xl text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+          아래 항목을 더한 값이다. 여기 더하지 않은 코드가 {(
+            CODE_TOTAL.lines - CV_VISIBLE_LINES
+          ).toLocaleString()}줄 더 있다 — Clozet을 React Native로 옮기다 멈춘 Lyfe 36,211줄과 Green
+          Apple 이전 Flutter 버전인 re:fine 37,282줄. 둘 다 쓰다 버린 코드라 총계에는 넣지 않았다.
         </p>
       </div>
 

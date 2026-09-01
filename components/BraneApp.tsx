@@ -105,7 +105,9 @@ export default function BraneApp() {
       } else {
         setChat((prev) => [
           ...prev,
-          { query: q, answer: `에러: ${data.error ?? "알 수 없는 오류"}`, loadedFiles: [] },
+          { query: q, answer: (res.status === 503
+            ? "지금은 답변 기능이 꺼져 있습니다. 왼쪽 INDEX에서 문서를 열면 같은 원장을 그대로 읽을 수 있고, 문장에 붙은 📎는 원본으로 열립니다."
+            : `에러: ${data.error ?? "알 수 없는 오류"}`), loadedFiles: [] },
         ]);
       }
     } finally {
@@ -168,7 +170,15 @@ export default function BraneApp() {
       </div>
 
       {/* sidebar — floating glass, left */}
-      <div className="absolute left-4 top-16 z-20 h-[calc(100%-6rem)]">
+      <div className="pointer-events-none absolute left-4 right-4 top-[3.4rem] z-20 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.68rem] sm:right-auto">
+        <span style={{ color: "var(--text-secondary)" }}>
+          AI 대화 로그 1,082개가 개념 문서로 압축된 원장. 문장마다 원본 인용이 붙습니다.
+        </span>
+        <a href="/" className="pointer-events-auto underline" style={{ color: "var(--accent-text)" }}>처음</a>
+        <a href="/portfolio" className="pointer-events-auto underline" style={{ color: "var(--accent-text)" }}>포트폴리오</a>
+      </div>
+
+      <div className="absolute left-3 right-3 top-[5.6rem] z-20 h-[calc(100%-9rem)] sm:right-auto sm:left-4">
         <GraphIndexPanel
           glass
           selectedRelPath={selected?.relPath}
@@ -179,7 +189,7 @@ export default function BraneApp() {
 
       {/* selected concept — floating glass, center-right; absent = pure graph */}
       {selected && (
-        <div className="absolute left-[21rem] right-[22rem] top-16 z-20 max-h-[calc(100%-6rem)] overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] p-6 shadow-[0_0_60px_rgba(0,0,0,0.3)] backdrop-blur-2xl">
+        <div className="absolute inset-x-3 top-16 z-30 max-h-[calc(100%-6rem)] sm:inset-x-auto sm:left-[21rem] sm:right-[22rem] sm:z-20 overflow-y-auto rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] p-6 shadow-[0_0_60px_rgba(0,0,0,0.3)] backdrop-blur-2xl">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--text-primary)]">{selected.title}</h2>
@@ -218,7 +228,7 @@ export default function BraneApp() {
 
       {/* chat — floating glass, right. collapsed to a launcher until first use. */}
       {chatOpen ? (
-        <div className="absolute right-4 top-16 z-20 flex h-[calc(100%-6rem)] w-96 flex-col overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] backdrop-blur-2xl">
+        <div className="absolute inset-x-3 top-16 z-40 flex h-[calc(100%-6rem)] flex-col sm:inset-x-auto sm:right-4 sm:z-20 sm:w-96 overflow-hidden rounded-xl border border-[rgba(var(--brane-accent-rgb),0.2)] bg-[var(--panel-bg)] backdrop-blur-2xl">
           <div className="flex items-center justify-between border-b border-[var(--panel-border)] px-4 py-2">
             <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
               chat stream

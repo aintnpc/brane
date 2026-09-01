@@ -25,7 +25,6 @@ const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
   "ventures/befficient.md",
   // How the work gets done.
   "architecture/brane.md",
-  "playbooks/execution-method.md",
   "playbooks/sales-activation-method.md",
   "playbooks/bottleneck-relay-investing-framework.md",
   "playbooks/idea-backlog.md",
