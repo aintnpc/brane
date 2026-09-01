@@ -2,12 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 import { listConcepts, getConcept, getArchiveSource, ConceptFile } from "./bundle";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
-const MODEL = "claude-sonnet-5";
+// Two calls per question: a selection pass that ranks a short index, and a
+// synthesis pass over the picked excerpts. Selection is easy enough that model
+// choice barely moves it; synthesis is what a reader sees. Haiku runs both at
+// roughly a third of Sonnet's cost — swap SYNTHESIS_MODEL back to
+// "claude-sonnet-5" alone if answer quality doesn't hold up.
+const SELECTION_MODEL = "claude-haiku-4-5-20251001";
+const SYNTHESIS_MODEL = "claude-haiku-4-5-20251001";
 
 // Bounds how many archive files a single query can pull in. Mirrors engine/load.md's
-// "관련 없으면 열지 않는다" principle — this is a ceiling for when links genuinely need
-// following, not an invitation to open everything cited.
-const MAX_ARCHIVE_HOPS = 3;
+// "관련 없으면 열지 않는다" principle. Kept at 1 because this endpoint is public and
+// unauthenticated: every hop is another synthesis call carrying the full prior
+// conversation, so the cost of one question scales with this number.
+const MAX_ARCHIVE_HOPS = 1;
 
 const READ_ARCHIVE_TOOL: Anthropic.Tool = {
   name: "read_archive_source",
@@ -89,7 +96,7 @@ export async function ask(query: string): Promise<AskResult> {
     .join("\n");
 
   const selection = await client.messages.create({
-    model: MODEL,
+    model: SELECTION_MODEL,
     max_tokens: 1024,
     system:
       "You are brane's read-path selector. Given a directory index (relPath | title | description | tags | timestamp) " +
@@ -149,8 +156,8 @@ export async function ask(query: string): Promise<AskResult> {
   for (let hop = 0; ; hop++) {
     const atHopLimit = hop >= MAX_ARCHIVE_HOPS;
     const resp = await client.messages.create({
-      model: MODEL,
-      max_tokens: 2048,
+      model: SYNTHESIS_MODEL,
+      max_tokens: 1200,
       system: synthesisSystem,
       tools: atHopLimit ? undefined : [READ_ARCHIVE_TOOL],
       messages,

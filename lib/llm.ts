@@ -274,10 +274,10 @@ export function listProviders(): Provider[] {
     out.push(
       openAICompatible({
         id: "gemini",
-        label: `Gemini (${process.env.GEMINI_MODEL ?? "gemini-2.5-flash"})`,
+        label: `Gemini (${process.env.GEMINI_MODEL ?? "gemini-3.6-flash"})`,
         baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
         apiKey: process.env.GEMINI_API_KEY,
-        model: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+        model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
       }),
     );
   }

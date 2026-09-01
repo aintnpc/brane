@@ -150,58 +150,11 @@ export interface TrajectoryPoint {
  */
 export const TRAJECTORY: TrajectoryPoint[] = [
   {
-    period: "2025 · 04",
-    title: "붙여넣기",
-    body: "Java 자료구조 과제. 컴파일러 오류를 맥락 없이 그대로 붙여넣는다. 세션 하나가 7~11줄.",
-    evidence: {
-      ref: "archive/2025-04-08-unreachable-code-and-stack-manipulation-fix.md",
-      quote: "@workspace /explain Unreachable code",
-    },
-  },
-  {
-    period: "2025 · 09",
-    title: "한 줄 명령",
-    body: "C 코스워크. 포인터, 구조체, 연결 리스트. 목표도 의도도 설명하지 않는 명령형 프롬프트.",
-    evidence: {
-      ref: "archive/2025-09-25-이거-포인터-쓰는걸로-바꿔줘.md",
-      quote: "이거 포인터 쓰는걸로 바꿔줘",
-    },
-  },
-  {
-    period: "2025 · 10",
-    title: "답 대신 이해를 요구하기 시작",
-    body:
-      "가장 중요한 전환점. AI가 코드를 고쳐주겠다는데 두 번 연속 거절하고 설명을 요구한다. " +
-      "이 습관은 후기에 익힌 세련미가 아니라 코스워크 시절부터 있던 기질이다.",
-    evidence: {
-      ref: "archive/2025-10-16-어디가-문제-야-코드-고치지-말고-말로-설명해.md",
-      quote: "어디가 문제 야 ? 코드 고치지 말고 말로 설명해",
-    },
-  },
-  {
-    period: "2025 · 10",
-    title: "스코프를 통제하기 시작",
-    body: "AI가 코드를 통째로 재작성하는 것을 막고 변경 범위를 좁힌다. 에이전트를 잘 쓰는 사람의 핵심 행동.",
-    evidence: {
-      ref: "archive/2025-10-16-최소한으로-수정한다면-내-코드-스타일-건들이지-않고-뭐가-추가-되어야해.md",
-      quote: "최소한으로 수정한다면, 내 코드 스타일 건들이지 않고, 뭐가 추가 되어야해 ?",
-    },
-  },
-  {
-    period: "2025 · 11",
-    title: "'왜'를 묻는다 — 그리고 짜증도 남긴다",
-    body:
-      "오류를 고치는 데서 멈추지 않고 원인을 캔다. 같은 달, 지워도 됐을 문장이 원장에 그대로 남아 있다. " +
-      "이 기록계가 정직하다는 증거다.",
-    evidence: {
-      ref: "archive/2025-11-21-왜-게속-오류는-발생하는건지-너무-짜증난다.md",
-      quote: "왜 게속 오류는 발생하는건지 너무 짜증난다.",
-    },
-  },
-  {
     period: "2026 · 01",
-    title: "코스워크에서 프로덕트로",
-    body: "Flutter 로그인, Supabase 인증, Cursor로 식단 검색·캘린더 기능. 과제가 아니라 제품을 만들기 시작한다.",
+    title: "과제에서 제품으로",
+    body:
+      "Flutter 로그인과 Supabase 인증을 붙이고, Cursor로 식단 검색·캘린더를 만든다. " +
+      "받은 문제를 푸는 데서 만들 것을 정하는 쪽으로 넘어간 지점.",
   },
   {
     period: "2026 · 07",
@@ -209,7 +162,7 @@ export const TRAJECTORY: TrajectoryPoint[] = [
     body:
       "모노레포 구조를 현업 수준으로 재편하면서 ADR 도입과 브랜드 자산의 LFS 분리까지 지시한다. " +
       "그러다 한 프로젝트로는 부족하다고 판단하고, 여러 에이전트에 병렬로 맡기는 것을 스스로 제안한다. " +
-      "세션 하나가 1,800~5,300줄. 붙여넣는 사람에서 지휘하는 사람으로.",
+      "세션 하나가 1,800~5,300줄.",
     evidence: {
       ref: "archive/2026-07-14-현재-brix-폴더를-분석한-결과-앱-코드-apps-packages-는-이미-모노레포.md",
       quote: "이런 작업을 새로운 여러 에이전트로, 해줄수 있어 ? /Users/jw/JW_Projects 안에 있는 모든 프로젝트들 ?",
@@ -223,3 +176,4 @@ export const TRAJECTORY: TrajectoryPoint[] = [
       "그 도구가 brane이고, 그 기록이 이 페이지다.",
   },
 ];
+

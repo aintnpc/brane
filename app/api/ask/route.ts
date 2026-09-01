@@ -8,10 +8,28 @@ import { ask } from "@/lib/load";
 // instance, which is the difference that matters. A real fix (KV/Durable
 // Object) can come when there's traffic worth spending on.
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 6;
+const MAX_PER_WINDOW = 4;
 const MAX_QUERY_CHARS = 400;
 
 const hits = new Map<string, number[]>();
+
+// Blunt daily ceiling per instance. Not exact across a fleet, but it turns
+// "unbounded" into "bounded per instance per day", which is the property that
+// matters when the endpoint is public and every call bills tokens.
+const MAX_PER_DAY = 200;
+let dayKey = "";
+let dayCount = 0;
+
+function dailyBudgetExhausted(): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== dayKey) {
+    dayKey = today;
+    dayCount = 0;
+  }
+  if (dayCount >= MAX_PER_DAY) return true;
+  dayCount++;
+  return false;
+}
 
 function rateLimited(key: string): boolean {
   const now = Date.now();
@@ -52,8 +70,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (dailyBudgetExhausted()) {
+    return NextResponse.json({ error: "unavailable" }, { status: 503 });
+  }
+
   try {
     const result = await ask(query);
+    const u = result.trace;
+    console.log(
+      `[ask] day=${dayKey} n=${dayCount} in=${u.selection.inputTokens + u.synthesis.inputTokens} ` +
+        `out=${u.selection.outputTokens + u.synthesis.outputTokens} hops=${u.archiveHops}`,
+    );
     return NextResponse.json(result);
   } catch (err) {
     console.error(err);

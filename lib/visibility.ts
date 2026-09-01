@@ -44,6 +44,10 @@ const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
 /**
  * Archive sources a stranger may open, by bare filename.
  *
+ * The 2025 coursework sessions used to be here — they were the only openable
+ * citations for a while, which made the record's verifiable half its weakest
+ * half. Agent sessions carry the claims worth checking now.
+ *
  * NOT derived from "is it cited by a public concept" — that rule is what put a
  * personal phone number (archive/2026-07-21-mybrane-io-prd-hyre.md, cited by
  * architecture/brane.md) and a ChatGPT profile dump (2026-06-03-사용자-정보-요약.md,
@@ -54,18 +58,6 @@ const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
  * claims about verification habits. Each is 161B–2.9KB and has been read in full.
  */
 const PUBLIC_ARCHIVE: ReadonlySet<string> = new Set([
-  "2025-04-08-unreachable-code-and-stack-manipulation-fix.md",
-  "2025-09-25-이거-맞아.md",
-  "2025-09-25-이거-포인터-쓰는걸로-바꿔줘.md",
-  "2025-10-02-fix-use-of-undeclared-identifier-studentsfamily-name.md",
-  "2025-10-02-struct-student-family-name-30-char-first-initial-int-age.md",
-  "2025-10-16-어디가-문제-야-코드-고치지-말고-말로-설명해.md",
-  "2025-10-16-우린-next-pointer-밖에-업는데-prev-어떻게-구현.md",
-  "2025-10-16-이-함수-맞게-했어-create-a-new-song-node-with-the-provided-inform.md",
-  "2025-10-16-최소한으로-수정한다면-내-코드-스타일-건들이지-않고-뭐가-추가-되어야해.md",
-  "2025-11-03-왜-오류-발생.md",
-  "2025-11-04-memory-address-out-of-bounds-라고-떳어-왜지.md",
-  "2025-11-21-왜-게속-오류는-발생하는건지-너무-짜증난다.md",
   // 2026 — the agent-orchestration claim, in his own prompts.
   "2026-07-14-현재-brix-폴더를-분석한-결과-앱-코드-apps-packages-는-이미-모노레포.md",
 ]);
