@@ -1,5 +1,5 @@
 import path from "path";
-import { listConcepts, BUNDLE_DIR } from "./bundle";
+import { listConcepts } from "./bundle";
 
 export interface GraphNode {
   id: string; // relPath
@@ -22,21 +22,43 @@ function extractLinkTargets(content: string, fromRelPath: string): string[] {
   const targets: string[] = [];
   const linkRe = /\[[^\]]*\]\(([^)]+)\)/g;
   let m: RegExpExecArray | null;
-  const fromDir = path.dirname(path.join(BUNDLE_DIR, fromRelPath));
+  // Resolve against a virtual "/" root rather than the real bundle directory:
+  // the arithmetic is identical, but it works for concepts that only exist in
+  // memory. posix.resolve clamps at the root, so `../../../etc/passwd` lands
+  // inside the namespace and is then dropped by the validIds check.
+  const fromDir = path.posix.dirname(path.posix.join("/", fromRelPath));
   while ((m = linkRe.exec(content))) {
     const href = m[1];
     if (!href.endsWith(".md") || href.startsWith("http") || href.startsWith("archive/")) {
       continue;
     }
-    const resolved = path.resolve(fromDir, href);
-    if (!resolved.startsWith(BUNDLE_DIR)) continue;
-    targets.push(path.relative(BUNDLE_DIR, resolved).replace(/\\/g, "/"));
+    targets.push(path.posix.resolve(fromDir, href).replace(/^\//, ""));
   }
   return targets;
 }
 
+/** Shape buildGraphFrom needs — satisfied by both on-disk concepts and a visitor's in-memory ones. */
+export interface GraphInput {
+  relPath: string;
+  title: string;
+  category: string;
+  tags?: string[];
+  content: string;
+}
+
 export function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
-  const concepts = listConcepts();
+  return buildGraphFrom(listConcepts());
+}
+
+/**
+ * The graph, over any set of concepts.
+ *
+ * Split out from buildGraph so a visitor's brane — which never touches disk —
+ * renders through the identical code as the author's. The only thing the old
+ * version needed BUNDLE_DIR for was resolving relative links, and that is pure
+ * path arithmetic on the relPaths themselves.
+ */
+export function buildGraphFrom(concepts: GraphInput[]): { nodes: GraphNode[]; links: GraphLink[] } {
   const validIds = new Set(concepts.map((c) => c.relPath));
 
   const nodes: GraphNode[] = concepts.map((c) => ({

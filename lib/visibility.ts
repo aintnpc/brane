@@ -66,6 +66,8 @@ const PUBLIC_ARCHIVE: ReadonlySet<string> = new Set([
   "2025-11-03-왜-오류-발생.md",
   "2025-11-04-memory-address-out-of-bounds-라고-떳어-왜지.md",
   "2025-11-21-왜-게속-오류는-발생하는건지-너무-짜증난다.md",
+  // 2026 — the agent-orchestration claim, in his own prompts.
+  "2026-07-14-현재-brix-폴더를-분석한-결과-앱-코드-apps-packages-는-이미-모노레포.md",
 ]);
 
 /**
