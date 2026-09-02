@@ -115,7 +115,6 @@ export default function BrainGraph3D({
       fgRef.current?.zoomToFit?.(600, 40);
     }, 800);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, theme]);
 
   useEffect(() => {

@@ -148,9 +148,26 @@ export default function BrainGraph({
             ctx.fillStyle = color;
             ctx.fill();
             ctx.restore();
-            // no permanent text labels — hover (nodeLabel) + the index
-            // panel are the ways to identify a node, so the canvas stays
-            // clean at rest instead of turning into a wall of text.
+            // Labels are drawn, not left to hover. With a dozen or so nodes the
+            // canvas doesn't get crowded, and hover-only labels meant the graph
+            // read as decoration to anyone who didn't already know what was in
+            // it — the names are the information.
+            {
+              const label = n.title.length > 22 ? `${n.title.slice(0, 21)}…` : n.title;
+              const size = Math.max(2.4, 11 / globalScale);
+              ctx.save();
+              ctx.font = `${size}px ui-sans-serif, system-ui, sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "top";
+              // A dark rim under the glyphs keeps them legible where a node or
+              // link passes behind the text.
+              ctx.lineWidth = size / 4;
+              ctx.strokeStyle = "rgba(0,0,0,0.85)";
+              ctx.strokeText(label, n.x ?? 0, (n.y ?? 0) + radius + size * 0.45);
+              ctx.fillStyle = "rgba(228,228,231,0.92)";
+              ctx.fillText(label, n.x ?? 0, (n.y ?? 0) + radius + size * 0.45);
+              ctx.restore();
+            }
 
             // unresolved-conflict marker — the one thing a plain Obsidian
             // graph view structurally cannot show: a concept the engine

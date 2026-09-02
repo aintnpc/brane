@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
-import { ask } from "@/lib/load";
+import { askStream } from "@/lib/load";
 
 // This endpoint is open on a public domain and every call bills Anthropic
 // tokens, so it needs a ceiling that isn't "nobody finds it". The limiter is
@@ -83,17 +83,48 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
+  // Streamed as newline-delimited JSON: {t} for each text delta, then one {done}
+  // carrying the citations and trace. A full answer takes ~15s to generate; held
+  // back until the end, that reads as a broken page.
+  const encoder = new TextEncoder();
   try {
-    const result = await ask(query);
-    const u = result.trace;
-    console.log(
-      `[ask] visitor=${visitor} q=${JSON.stringify(query)} ` +
-        `docs=${JSON.stringify(result.loadedFiles.map((f) => f.relPath))} ` +
-        `in=${u.selection.inputTokens + u.synthesis.inputTokens} ` +
-        `out=${u.selection.outputTokens + u.synthesis.outputTokens} ` +
-        `hops=${u.archiveHops} n=${dayCount}`,
-    );
-    return NextResponse.json(result);
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        const send = (obj: unknown) =>
+          controller.enqueue(encoder.encode(`${JSON.stringify(obj)}\n`));
+        try {
+          const result = await askStream(query, (delta) => send({ t: delta }));
+          const u = result.trace;
+          console.log(
+            `[ask] visitor=${visitor} q=${JSON.stringify(query)} ` +
+              `docs=${JSON.stringify(result.loadedFiles.map((f) => f.relPath))} ` +
+              `in=${u.selection.inputTokens + u.synthesis.inputTokens} ` +
+              `out=${u.selection.outputTokens + u.synthesis.outputTokens} ` +
+              `hops=${u.archiveHops} n=${dayCount}`,
+          );
+          send({ done: true, loadedFiles: result.loadedFiles, trace: result.trace });
+        } catch (err) {
+          console.error(err);
+          const msg = String(err);
+          const unavailable =
+            msg.includes("credit balance") ||
+            msg.includes("rate_limit") ||
+            msg.includes("authentication_error") ||
+            msg.includes("overloaded");
+          send({ error: unavailable ? "unavailable" : "failed" });
+        } finally {
+          controller.close();
+        }
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "application/x-ndjson; charset=utf-8",
+        "Cache-Control": "no-store",
+        // Streaming through a proxy that buffers defeats the point.
+        "X-Accel-Buffering": "no",
+      },
+    });
   } catch (err) {
     console.error(err);
     const msg = String(err);

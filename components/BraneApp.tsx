@@ -215,7 +215,7 @@ export default function BraneApp() {
               ✕
             </button>
           </div>
-          <div className={`prose prose-sm max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
+          <div className={"prose prose-sm max-w-none"}>
             <MarkdownWithCitations
               content={selected.content}
               baseRelPath={selected.relPath}
@@ -250,7 +250,7 @@ export default function BraneApp() {
                 <div className="rounded-lg bg-[var(--hover-bg)] px-3 py-2 font-medium text-[var(--text-primary)]">
                   {turn.query}
                 </div>
-                <div className={`prose prose-sm max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
+                <div className={"prose prose-sm max-w-none"}>
                   <MarkdownWithCitations content={turn.answer} onCite={openCitation} />
                 </div>
                 {turn.loadedFiles.length > 0 && (

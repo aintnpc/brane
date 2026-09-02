@@ -45,6 +45,101 @@ const JUDGMENT_TONE: Record<string, string> = {
 
 let nextId = 1;
 
+// The way back in.
+//
+// There are no accounts here, so a lost link is a lost brane — which makes
+// this the only recovery path that exists. The reply is deliberately the same
+// whether or not the address is known, so nobody can use it to find out who
+// has a brane on this site.
+function RecoverLink() {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  async function submit() {
+    setState("sending");
+    try {
+      const res = await fetch("/api/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        setState("error");
+        setMessage(d.error ?? "다시 시도해주세요.");
+        return;
+      }
+      setState("sent");
+      setMessage(d.message ?? "메일함을 확인해주세요.");
+    } catch {
+      setState("error");
+      setMessage("연결에 실패했습니다.");
+    }
+  }
+
+  if (!open) {
+    return (
+      <p className="mt-6 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+        전에 만든 brane이 있나요?{" "}
+        <button onClick={() => setOpen(true)} className="underline" style={{ color: "var(--accent-text)" }}>
+          링크 다시 받기
+        </button>
+      </p>
+    );
+  }
+
+  return (
+    <div
+      className="mt-6 rounded-lg border p-4"
+      style={{ borderColor: "var(--panel-border)", background: "var(--panel-bg)" }}
+    >
+      {state === "sent" ? (
+        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+          {message}
+        </p>
+      ) : (
+        <>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[11px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+              brane을 만들 때 등록한 이메일
+            </span>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && email.includes("@") && void submit()}
+                placeholder="you@example.com"
+                className="flex-1 rounded border px-2 py-1.5 text-sm"
+                style={{
+                  borderColor: "var(--panel-border)",
+                  background: "var(--hover-bg)",
+                  color: "var(--text-primary)",
+                }}
+              />
+              <button
+                onClick={() => void submit()}
+                disabled={!email.includes("@") || state === "sending"}
+                className="shrink-0 rounded px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+                style={{ background: "var(--brane-accent)", color: "#fff" }}
+              >
+                {state === "sending" ? "보내는 중…" : "보내기"}
+              </button>
+            </div>
+          </label>
+          {state === "error" && (
+            <p className="mt-2 text-xs" style={{ color: "#b0698a" }}>
+              {message}
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function TryBrane() {
   const router = useRouter();
   const [drafts, setDrafts] = useState<Draft[]>([{ id: nextId++, name: "", text: "" }]);
@@ -395,6 +490,8 @@ export default function TryBrane() {
           >
             내 brane 만들기
           </button>
+
+          <RecoverLink />
         </>
       )}
 

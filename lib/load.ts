@@ -82,17 +82,30 @@ function sumUsage(usages: TokenUsage[]): TokenUsage {
   );
 }
 
-// Mirrors ~/brane/engine/load.md: scan frontmatter only, pick <=5 relevant
-// files, then synthesize a grounded answer. Never stuff the whole bundle
-// into one prompt.
-export async function ask(query: string): Promise<AskResult> {
-  const concepts = listConcepts();
 
+const SYNTHESIS_SYSTEM =
+  "You are brane's read-path synthesizer. Answer the user's question using the provided bundle excerpts. " +
+  "Preserve every `^[archive/...]` citation tag exactly as it appears in the source text when you use a fact from it — " +
+  "do not invent new citations and do not drop existing ones. " +
+  "Bundle excerpts are summaries, not the full record — for consequential judgments (does the roadmap allow X, " +
+  "is Y actually prohibited, what exactly was decided), a one-line citation may be hiding the reasoning, alternatives, " +
+  "or exact wording you need. Use read_archive_source to open a cited archive file when you can point to a specific " +
+  "gap it would fill. Don't open citations that are just supporting color. If the excerpts don't answer the question " +
+  "even after following the citations that mattered, say so plainly. " +
+  "You know this ledger and nothing else — no companies, competitions, job postings, people, or current " +
+  "events outside it, and no general knowledge you might otherwise have. If answering would require " +
+  "knowing something external (what a particular contest looks for, how a company hires, what a role " +
+  "pays), say which part you cannot know, then answer only the part the ledger does cover. Never infer " +
+  "an external fact from the ledger. " +
+  "Keep it tight — a few short paragraphs, not an essay. Answer in Korean, matching the bundle's language.";
+
+/** Scan frontmatter only and pick at most 5 files. Never stuff the whole bundle in. */
+async function selectConcepts(
+  query: string,
+  concepts: ConceptFile[],
+): Promise<{ picked: string[]; selection: Anthropic.Message }> {
   const index = concepts
-    .map(
-      (c) =>
-        `${c.relPath} | ${c.title} | ${c.description} | tags: ${c.tags.join(",")} | ${c.timestamp}`,
-    )
+    .map((c) => `${c.relPath} | ${c.title} | ${c.description} | tags: ${c.tags.join(",")} | ${c.timestamp}`)
     .join("\n");
 
   const selection = await client.messages.create({
@@ -110,19 +123,28 @@ export async function ask(query: string): Promise<AskResult> {
     ],
   });
 
-  const rawSelection = selection.content
+  const raw = selection.content
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
     .map((b) => b.text)
     .join("");
 
   let picked: string[] = [];
   try {
-    const match = rawSelection.match(/\[[\s\S]*\]/);
+    const match = raw.match(/\[[\s\S]*\]/);
     picked = match ? JSON.parse(match[0]) : [];
   } catch {
     picked = [];
   }
-  picked = picked.slice(0, 5);
+  return { picked: picked.slice(0, 5), selection };
+}
+
+// Mirrors ~/brane/engine/load.md: scan frontmatter only, pick <=5 relevant
+// files, then synthesize a grounded answer. Never stuff the whole bundle
+// into one prompt.
+export async function ask(query: string): Promise<AskResult> {
+  const concepts = listConcepts();
+
+  const { picked, selection } = await selectConcepts(query, concepts);
 
   const loaded = picked
     .map((relPath) => getConcept(relPath))
@@ -132,15 +154,6 @@ export async function ask(query: string): Promise<AskResult> {
     .map((c) => `--- ${c.relPath} (title: ${c.title}, timestamp: ${c.timestamp}) ---\n${c.content}`)
     .join("\n\n");
 
-  const synthesisSystem =
-    "You are brane's read-path synthesizer. Answer the user's question using the provided bundle excerpts. " +
-    "Preserve every `^[archive/...]` citation tag exactly as it appears in the source text when you use a fact from it — " +
-    "do not invent new citations and do not drop existing ones. " +
-    "Bundle excerpts are summaries, not the full record — for consequential judgments (does the roadmap allow X, " +
-    "is Y actually prohibited, what exactly was decided), a one-line citation may be hiding the reasoning, alternatives, " +
-    "or exact wording you need. Use read_archive_source to open a cited archive file when you can point to a specific " +
-    "gap it would fill. Don't open citations that are just supporting color. If the excerpts don't answer the question " +
-    "even after following the citations that mattered, say so plainly. Answer in Korean, matching the bundle's language.";
 
   const messages: Anthropic.MessageParam[] = [
     {
@@ -158,7 +171,7 @@ export async function ask(query: string): Promise<AskResult> {
     const resp = await client.messages.create({
       model: SYNTHESIS_MODEL,
       max_tokens: 1200,
-      system: synthesisSystem,
+      system: SYNTHESIS_SYSTEM,
       tools: atHopLimit ? undefined : [READ_ARCHIVE_TOOL],
       messages,
     });
@@ -200,6 +213,91 @@ export async function ask(query: string): Promise<AskResult> {
       title: c.title,
       timestamp: c.timestamp,
     })),
+    archiveLoaded,
+    trace: {
+      selection: usageOf(selection),
+      synthesis: sumUsage(synthesisUsages),
+      conceptsScanned: concepts.length,
+      archiveHops: archiveLoaded.length,
+    },
+  };
+}
+
+/**
+ * Same read path, streamed.
+ *
+ * A full answer takes on the order of fifteen seconds to generate, and holding it
+ * all back until the last token means a reader stares at a spinner for the whole
+ * time and reasonably concludes nothing is working. `onText` fires per delta so
+ * the first words land in about a second.
+ */
+export async function askStream(
+  query: string,
+  onText: (delta: string) => void,
+): Promise<AskResult> {
+  const concepts = listConcepts();
+  const { picked, selection } = await selectConcepts(query, concepts);
+
+  const loaded = picked
+    .map((relPath) => getConcept(relPath))
+    .filter((c): c is ConceptFile => c !== null);
+
+  const context = loaded
+    .map((c) => `--- ${c.relPath} (title: ${c.title}, timestamp: ${c.timestamp}) ---\n${c.content}`)
+    .join("\n\n");
+
+  const messages: Anthropic.MessageParam[] = [
+    { role: "user", content: `BUNDLE EXCERPTS:\n\n${context}\n\nQUESTION: ${query}` },
+  ];
+
+  const synthesisUsages: TokenUsage[] = [];
+  const archiveLoaded: string[] = [];
+  let answer = "";
+
+  for (let hop = 0; ; hop++) {
+    const atHopLimit = hop >= MAX_ARCHIVE_HOPS;
+    const stream = client.messages.stream({
+      model: SYNTHESIS_MODEL,
+      max_tokens: 1200,
+      system: SYNTHESIS_SYSTEM,
+      tools: atHopLimit ? undefined : [READ_ARCHIVE_TOOL],
+      messages,
+    });
+
+    stream.on("text", (delta) => {
+      answer += delta;
+      onText(delta);
+    });
+
+    const resp = await stream.finalMessage();
+    synthesisUsages.push(usageOf(resp));
+
+    const toolUses = resp.content.filter(
+      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+    );
+    if (toolUses.length === 0) break;
+
+    messages.push({ role: "assistant", content: resp.content });
+    messages.push({
+      role: "user",
+      content: toolUses.map((tu): Anthropic.ToolResultBlockParam => {
+        const relPath = (tu.input as { archiveRelPath?: string }).archiveRelPath ?? "";
+        const source = getArchiveSource(relPath);
+        archiveLoaded.push(relPath);
+        return {
+          type: "tool_result",
+          tool_use_id: tu.id,
+          content:
+            source ??
+            `(이 인용의 원본은 열 수 없습니다: ${relPath} — 공개 범위에 포함되지 않았거나 존재하지 않는 파일입니다. 추측하지 말고, 인용된 bundle 발췌만으로 답하세요.)`,
+        };
+      }),
+    });
+  }
+
+  return {
+    answer,
+    loadedFiles: loaded.map((c) => ({ relPath: c.relPath, title: c.title, timestamp: c.timestamp })),
     archiveLoaded,
     trace: {
       selection: usageOf(selection),

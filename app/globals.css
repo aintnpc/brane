@@ -15,6 +15,7 @@
   /* Same hue, lifted for legibility as small text on the near-black ground.
      Only the graph should use the saturated brand value directly. */
   --accent-text: #a78bfa;
+  --accent-on: #0b0b0e;
 
   /* theme tokens — everything glass/panel/text-toned reads from these so
      BraneApp/GraphIndexPanel don't need per-component light/dark branches. */
@@ -32,6 +33,7 @@
 
 [data-theme="light"] {
   --accent-text: #6d28d9;
+  --accent-on: #ffffff;
   --background: #f4f4f5;
   --foreground: #18181b;
   --panel-bg: rgba(255, 255, 255, 0.85);
@@ -58,4 +60,48 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Tailwind Typography reads these vars, so wiring them to the theme tokens makes
+   .prose follow light/dark without a per-component `prose-invert` toggle — which
+   is what broke: one component applied it unconditionally and its answers turned
+   light-on-light in light mode. */
+.prose {
+  --tw-prose-body: var(--text-secondary);
+  --tw-prose-headings: var(--text-primary);
+  --tw-prose-bold: var(--text-primary);
+  --tw-prose-links: var(--accent-text);
+  --tw-prose-code: var(--text-primary);
+  --tw-prose-quotes: var(--text-secondary);
+  --tw-prose-bullets: var(--text-muted);
+  --tw-prose-counters: var(--text-muted);
+  --tw-prose-hr: var(--panel-border);
+  --tw-prose-th-borders: var(--panel-border);
+  --tw-prose-td-borders: var(--panel-border);
+}
+
+/* Waiting on the read path is a few seconds of nothing, and a single static line
+   of text doesn't tell you whether anything is happening. These give the wait a
+   pulse. */
+@keyframes brane-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+.brane-dot { animation: brane-dot 1.2s ease-in-out infinite; }
+.brane-dot:nth-child(2) { animation-delay: 0.16s; }
+.brane-dot:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes brane-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.brane-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--panel-border) 0%,
+    rgba(var(--brane-accent-rgb), 0.35) 50%,
+    var(--panel-border) 100%
+  );
+  background-size: 200% 100%;
+  animation: brane-shimmer 1.6s linear infinite;
 }

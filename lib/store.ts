@@ -51,6 +51,14 @@ export interface Store {
   remove(token: string): Promise<void>;
   /** Tokens registered to an email, for the recovery link. */
   tokensForEmail(email: string): Promise<string[]>;
+  /**
+   * Atomically bump a counter and return its new value.
+   *
+   * The daily spend ceiling has to be shared across serverless instances to
+   * mean anything — a per-instance limiter bounds the bill per instance, which
+   * is not the same as bounding the bill.
+   */
+  incr(key: string, ttlSeconds: number): Promise<number>;
 }
 
 export const RETENTION_DAYS = 30;

@@ -7,6 +7,8 @@ timestamp: 2026-08-31
 status: Green App Store 리스팅 만료 · 결제 1건(경로 미추적) / Red MVP 완성·대기
 ---
 
+제품 전체 맥락은 [Green Apple & Red Apple](../ventures/green-apple.md) 참조.
+
 # 만든 것
 
 칼로리를 세는 앱은 많다. 세고 나서 뭘 해야 하는지 말해주는 앱이 없었다.

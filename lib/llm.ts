@@ -56,7 +56,17 @@ class ProviderError extends Error {
 export function classifyError(err: unknown): ProviderError["kind"] {
   if (err instanceof ProviderError) return err.kind;
   const msg = String(err instanceof Error ? err.message : err).toLowerCase();
-  if (msg.includes("credit balance") || msg.includes("insufficient_quota") || msg.includes("quota"))
+  // "credit" covers every way a provider says "we will not bill this for you":
+  // an exhausted balance, a spent quota, and a gateway refusing to serve until
+  // a payment method exists. They differ to an operator and are identical to a
+  // visitor, whose only useful next step is picking another model.
+  if (
+    msg.includes("credit balance") ||
+    msg.includes("insufficient_quota") ||
+    msg.includes("quota") ||
+    msg.includes("customer_verification_required") ||
+    msg.includes("credit card")
+  )
     return "credit";
   if (msg.includes("rate limit") || msg.includes("rate_limit") || msg.includes("429"))
     return "rate_limit";
@@ -258,6 +268,29 @@ function mockProvider(): Provider {
 export function listProviders(): Provider[] {
   const out: Provider[] = [];
 
+  // Vercel AI Gateway, first because it is the production answer.
+  //
+  // Google's *free* Gemini tier permits prompts to be used for training, which
+  // is indefensible for a product whose whole claim is that your conversations
+  // stay yours — the visitor path must not run on it. Going through a paid
+  // endpoint removes that, and the Gateway prices at provider rates with no
+  // markup or platform fee (and Gemini 3.7 Flash at half price through
+  // 2026-12-31), so the honest option is also the cheap one. The direct Gemini
+  // key below stays as the zero-cost path for local development and the
+  // simulation harness, where the only conversations involved are synthetic.
+  if (process.env.AI_GATEWAY_API_KEY) {
+    const model = process.env.AI_GATEWAY_MODEL ?? "google/gemini-3.7-flash";
+    out.push(
+      openAICompatible({
+        id: "gateway",
+        label: `${model.split("/").pop()} (Vercel AI Gateway)`,
+        baseUrl: "https://ai-gateway.vercel.sh/v1",
+        apiKey: process.env.AI_GATEWAY_API_KEY,
+        model,
+      }),
+    );
+  }
+
   if (process.env.GROQ_API_KEY) {
     out.push(
       openAICompatible({
@@ -274,10 +307,10 @@ export function listProviders(): Provider[] {
     out.push(
       openAICompatible({
         id: "gemini",
-        label: `Gemini (${process.env.GEMINI_MODEL ?? "gemini-3.6-flash"})`,
+        label: `Gemini (${process.env.GEMINI_MODEL ?? "gemini-3.7-flash"})`,
         baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
         apiKey: process.env.GEMINI_API_KEY,
-        model: process.env.GEMINI_MODEL ?? "gemini-3.6-flash",
+        model: process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
       }),
     );
   }
@@ -331,7 +364,21 @@ export function getProvider(id?: string | null): Provider {
   return available[0];
 }
 
-/** Menu payload for the visitor-facing model picker. */
+/**
+ * Menu payload for the visitor-facing model picker.
+ *
+ * Ordered so the first entry is the one getProvider() would pick on its own.
+ * They are allowed to differ — listProviders() is ranked by intent, while
+ * BRANE_LLM_PROVIDER is an operator override — and when they did, the picker
+ * pre-selected a provider the server would never have chosen, handing every
+ * visitor a 403 from a backend that was configured but not paid for.
+ */
 export function providerMenu(): { id: string; label: string; real: boolean }[] {
-  return listProviders().map((p) => ({ id: p.id, label: p.label, real: p.real }));
+  const available = listProviders();
+  const defaultId = getProvider().id;
+  const ordered = [
+    ...available.filter((p) => p.id === defaultId),
+    ...available.filter((p) => p.id !== defaultId),
+  ];
+  return ordered.map((p) => ({ id: p.id, label: p.label, real: p.real }));
 }

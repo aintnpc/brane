@@ -7,6 +7,8 @@ timestamp: 2026-08-31
 status: 개발 완료·온라인 운영 중. 유료 고객 확보 단계 미도달 — 부하를 받아본 적 없음.
 ---
 
+제품 전체 맥락은 [Share2DM](../ventures/share2dm.md) 참조.
+
 # 제약이 먼저 있었다
 
 Cloudflare Workers는 요청당 CPU 10ms, 하루 10만 요청. Supabase 무료 티어는 500MB에

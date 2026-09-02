@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MarkdownWithCitations from "./MarkdownWithCitations";
 
 // The hero of the portfolio: a question box instead of a pitch.
@@ -25,16 +25,24 @@ const SUGGESTED = [
   "결제나 정산 시스템을 다뤄봤나?",
 ];
 
-export default function AskBrane() {
+export default function AskBrane({ header, minHeight = "76vh" }: { header?: React.ReactNode; minHeight?: string }) {
   const [q, setQ] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState<string | null>(null);
+  // The stream handler needs the current turn count without re-subscribing.
+  const turnsRef = useRef<Turn[]>([]);
   const [cite, setCite] = useState<{ ref: string; content: string } | null>(null);
+
+  useEffect(() => {
+    turnsRef.current = turns;
+  }, [turns]);
 
   async function submit(question: string) {
     const text = question.trim();
     if (!text || busy) return;
     setQ("");
+    setPending(text);
     setBusy(true);
     try {
       const res = await fetch("/api/ask", {
@@ -42,17 +50,73 @@ export default function AskBrane() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: text }),
       });
-      const data = await res.json();
-      const message =
-        res.status === 503
-          ? "지금은 답변 기능이 꺼져 있습니다. 아래로 스크롤하면 같은 원장에서 나온 작업 기록을 그대로 읽을 수 있고, 인용은 전부 원본으로 열립니다."
-          : (data.error ?? "알 수 없는 오류");
-      setTurns((prev) => [
-        ...prev,
-        res.ok
-          ? { q: text, answer: data.answer, loadedFiles: data.loadedFiles ?? [] }
-          : { q: text, answer: message, loadedFiles: [], error: true },
-      ]);
+
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}));
+        setTurns((prev) => [
+          ...prev,
+          {
+            q: text,
+            answer:
+              res.status === 503
+                ? "지금은 답변 기능이 꺼져 있습니다. 아래 문서를 열면 같은 원장을 그대로 읽을 수 있고, 인용은 원본으로 열립니다."
+                : (data.error ?? "알 수 없는 오류"),
+            loadedFiles: [],
+            error: true,
+          },
+        ]);
+        return;
+      }
+
+      // Append an empty turn first, then fill it as deltas arrive — the answer
+      // grows on screen instead of appearing all at once at the end.
+      const index = turnsRef.current.length;
+      setTurns((prev) => [...prev, { q: text, answer: "", loadedFiles: [] }]);
+      setPending(null);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let ev: { t?: string; done?: boolean; loadedFiles?: Turn["loadedFiles"]; error?: string };
+          try {
+            ev = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (ev.error) {
+            setTurns((prev) =>
+              prev.map((t, i) =>
+                i === index
+                  ? {
+                      ...t,
+                      error: true,
+                      answer:
+                        ev.error === "unavailable"
+                          ? "지금은 답변 기능이 꺼져 있습니다. 아래 문서를 열면 같은 원장을 그대로 읽을 수 있습니다."
+                          : "답변을 만들지 못했습니다.",
+                    }
+                  : t,
+              ),
+            );
+          } else if (ev.t) {
+            setTurns((prev) =>
+              prev.map((t, i) => (i === index ? { ...t, answer: t.answer + ev.t } : t)),
+            );
+          } else if (ev.done) {
+            setTurns((prev) =>
+              prev.map((t, i) => (i === index ? { ...t, loadedFiles: ev.loadedFiles ?? [] } : t)),
+            );
+          }
+        }
+      }
     } catch {
       setTurns((prev) => [
         ...prev,
@@ -60,6 +124,7 @@ export default function AskBrane() {
       ]);
     } finally {
       setBusy(false);
+      setPending(null);
     }
   }
 
@@ -77,8 +142,10 @@ export default function AskBrane() {
   }
 
   return (
-    <section className="flex min-h-[76vh] flex-col justify-center">
+    <section className="flex flex-col justify-center" style={{ minHeight }}>
       <div>
+        {header ?? (
+          <>
         <h1
           className="text-4xl font-semibold tracking-tight sm:text-5xl"
           style={{ color: "var(--text-primary)" }}
@@ -97,6 +164,8 @@ export default function AskBrane() {
           <br />
           찾는 사람이 직접 묻는 편이, 지원자가 미리 짐작해 쓴 글보다 정확합니다.
         </p>
+          </>
+        )}
       </div>
 
       <form
@@ -123,7 +192,7 @@ export default function AskBrane() {
             type="submit"
             disabled={busy || !q.trim()}
             className="shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium transition-opacity disabled:opacity-35"
-            style={{ background: "var(--accent-text)", color: "#0b0b0e" }}
+            style={{ background: "var(--accent-text)", color: "var(--accent-on)" }}
           >
             {busy ? "읽는 중" : "물어보기"}
           </button>
@@ -166,7 +235,7 @@ export default function AskBrane() {
                 {t.error ? (
                   <p className="text-sm">{t.answer}</p>
                 ) : (
-                  <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed">
+                  <div className="prose prose-sm max-w-none prose-p:leading-relaxed">
                     <MarkdownWithCitations content={t.answer} onCite={openCite} />
                   </div>
                 )}
@@ -184,15 +253,46 @@ export default function AskBrane() {
         </div>
       )}
 
-      {busy && (
-        <p className="mt-4 font-mono text-xs" style={{ color: "var(--text-muted)" }}>
-          원장을 읽는 중…
+      {busy && pending && (
+        <p className="mt-8 text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+          {pending}
         </p>
       )}
 
-      <p className="mt-10 font-mono text-[0.65rem]" style={{ color: "var(--text-muted)" }}>
-        ↓ 지금까지 만든 것
-      </p>
+      {busy && pending && (
+        <div
+          className="mt-3 rounded-xl border p-5"
+          style={{ borderColor: "var(--panel-border)", background: "var(--panel-bg)" }}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-2">
+            <span className="flex gap-1" aria-hidden>
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="brane-dot inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ background: "var(--accent-text)" }}
+                />
+              ))}
+            </span>
+            <span className="font-mono text-xs" style={{ color: "var(--text-secondary)" }}>
+              원장을 읽는 중
+            </span>
+          </div>
+          <div className="mt-4 space-y-2">
+            <div className="brane-shimmer h-2 w-full rounded" />
+            <div className="brane-shimmer h-2 w-[86%] rounded" />
+            <div className="brane-shimmer h-2 w-[62%] rounded" />
+          </div>
+        </div>
+      )}
+
+      {!header && (
+        <p className="mt-10 font-mono text-[0.65rem]" style={{ color: "var(--text-muted)" }}>
+          ↓ 지금까지 만든 것
+        </p>
+      )}
 
       {cite && (
         <div

@@ -219,7 +219,7 @@ export default function WorkView({ cv, cases }: { cv: CVEntry[]; cases: CaseStud
               className="rounded-full px-3 py-1.5 text-xs transition-colors"
               style={
                 deep === t.on
-                  ? { background: "var(--accent-text)", color: "#0b0b0e", fontWeight: 500 }
+                  ? { background: "var(--accent-text)", color: "var(--accent-on)", fontWeight: 500 }
                   : { color: "var(--text-muted)" }
               }
             >
