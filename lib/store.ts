@@ -154,6 +154,27 @@ function fsStore(root: string): Store {
       if (!fs.existsSync(f)) return [];
       return JSON.parse(fs.readFileSync(f, "utf-8")) as string[];
     },
+    async incr(key, ttlSeconds) {
+      ensure();
+      const f = path.join(root, `counter-${crypto.createHash("sha256").update(key).digest("hex")}.json`);
+      let value = 0;
+      let expiresAt = 0;
+      if (fs.existsSync(f)) {
+        try {
+          const prev = JSON.parse(fs.readFileSync(f, "utf-8")) as { value: number; expiresAt: number };
+          if (prev.expiresAt > Date.now()) {
+            value = prev.value;
+            expiresAt = prev.expiresAt;
+          }
+        } catch {
+          // A corrupt counter must not take the endpoint down; start over.
+        }
+      }
+      value += 1;
+      if (expiresAt === 0) expiresAt = Date.now() + ttlSeconds * 1000;
+      fs.writeFileSync(f, JSON.stringify({ value, expiresAt }), "utf-8");
+      return value;
+    },
   };
 }
 
@@ -200,6 +221,13 @@ function upstashStore(url: string, token: string): Store {
     async tokensForEmail(email) {
       const members = (await call(["SMEMBERS", emailKey(email)])) as string[] | null;
       return members ?? [];
+    },
+    async incr(k, ttlSeconds) {
+      const n = Number(await call(["INCR", `brane:count:${k}`]));
+      // Only set the expiry on the first increment, so the window is a fixed
+      // period rather than one that slides forward with every request.
+      if (n === 1) await call(["EXPIRE", `brane:count:${k}`, ttlSeconds]);
+      return n;
     },
   };
 }

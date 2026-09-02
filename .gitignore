@@ -40,3 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .gstack/
+
+# visitor branes (local dev store) — holds uploaded conversations verbatim.
+# Never commit: this is other people's private data, and the same directory is what
+# the filesystem Store writes to when UPSTASH_* isn't configured.
+/.brane-visitors
+
+# runtime visitor snapshots — data, not source
+.brane-visitors/

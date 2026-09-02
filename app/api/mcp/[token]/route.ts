@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { handleMcp, JsonRpcRequest } from "@/lib/mcp";
+import { resolveSnapshot } from "@/lib/budget";
 
 // The endpoint a visitor pastes into Claude, ChatGPT, Cursor, or any other MCP
 // client. Streamable HTTP: one POST carrying a JSON-RPC request, one JSON
@@ -45,7 +46,7 @@ export async function POST(
     );
   }
 
-  const snapshot = await getStore().get(token);
+  const snapshot = await resolveSnapshot(getStore(), token);
   if (!snapshot) {
     // One message for "never existed" and "expired" alike: distinguishing them
     // would confirm that a given token was once real, which is exactly the

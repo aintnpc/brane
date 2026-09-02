@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import GraphErrorBoundary from "./GraphErrorBoundary";
 import { colorFor, iconFor } from "@/lib/graphColors";
 
@@ -43,6 +43,7 @@ function daysLeft(iso: string): number {
 
 export default function BraneResult({ token }: { token: string }) {
   const router = useRouter();
+  const degraded = useSearchParams().get("degraded") === "1";
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -113,6 +114,18 @@ export default function BraneResult({ token }: { token: string }) {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8">
+      {degraded && (
+        <div
+          className="mb-6 rounded-lg border p-4 text-xs leading-relaxed"
+          style={{ borderColor: "#c9973f55", background: "#c9973f12", color: "var(--text-secondary)" }}
+        >
+          오늘의 무료 소화 한도를 모두 사용했습니다. 아래는 이 엔진이 실제로 만든{" "}
+          <b style={{ color: "var(--text-primary)" }}>예시 brane</b>입니다 —{" "}
+          <b style={{ color: "var(--text-primary)" }}>당신이 올린 대화는 저장되지 않았습니다.</b>{" "}
+          내일 다시 시도해주세요.
+        </div>
+      )}
+
       <header className="mb-8">
         <p className="mb-2 font-mono text-xs uppercase tracking-[0.16em]" style={{ color: "var(--text-muted)" }}>
           your brane

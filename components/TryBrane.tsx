@@ -302,7 +302,7 @@ export default function TryBrane() {
         setRunning(false);
         return;
       }
-      router.push(`/b/${ev.token as string}`);
+      router.push(`/b/${ev.token as string}${ev.degraded ? "?degraded=1" : ""}`);
     }
   }
 

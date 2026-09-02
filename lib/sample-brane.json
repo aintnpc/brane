@@ -1,0 +1,20 @@
+{
+  "label": "샘플 — 체스 게임 프로젝트",
+  "provider": "gemini",
+  "concepts": [
+    {
+      "relPath": "ventures/web-chess-game.md",
+      "raw": "---\ntype: venture\ntitle: 웹 체스 게임 개발 계획\ndescription: React 기반 웹 체스 게임의 기술 스택 선정, 규칙 구현 및 미니맥스 기반 AI 엔진 구현 현황\ntags:\n  - chess\n  - web-development\n  - react\n  - minimax\n  - ai-engine\n  - game-rules\ntimestamp: 2026-08-31\nstatus: in-progress\n---\n\n## 개요\n\n웹 기반 체스 게임 개발을 위한 기술 스택 및 AI 대전 엔진 설계 계획과 규칙 구현 현황이다^[archive/2026-08-30-체스-엔진.md].\n\n## 기술 스택 및 구조\n\n- **프론트엔드 프레임워크**: 기물 이동 애니메이션과 상태 관리의 용이성을 고려하여 순수 캔버스 대신 React를 채택하였다^[archive/2026-08-30-체스-엔진.md].\n- **상태 관리**: 체스판 상태는 단일 `board` 배열을 기반으로 관리한다^[archive/2026-08-30-체스-엔진.md].\n\n## 특수 규칙 구현 현황\n\n- **캐슬링**: 킹사이드 및 퀸사이드 캐슬링 구현을 완료하였다^[archive/2026-08-31-캐슬링.md].\n- **앙파상**: 직전 수가 폰의 2칸 전진이었는지 확인하기 위해 `board` 상태에 `lastMove`를 추가한 후 구현할 예정이다^[archive/2026-08-31-캐슬링.md].\n\n## AI 엔진 계획\n\n- **초기 구현**: 탐색 깊이(depth) 3의 미니맥스(Minimax) 알고리즘을 우선 적용한다^[archive/2026-08-30-체스-엔진.md].\n- **향후 개선**: 동일한 인터페이스를 유지하면서 알파베타 가지치기(Alpha-Beta Pruning)를 추가 도입하여 엔진 성능을 개선할 예정이다^[archive/2026-08-30-체스-엔진.md]."
+    }
+  ],
+  "sources": [
+    {
+      "name": "2026-08-30-체스-엔진.md",
+      "text": "# 체스 게임 만들기\n\n## User\n체스 게임 웹으로 만들려고 해. React로 갈지 순수 캔버스로 갈지 고민이야.\n\n## Assistant\n기물 이동 애니메이션과 상태 관리를 생각하면 React + 상태는 단일 board 배열로 두는 편이 낫습니다.\n\n## User\n좋아 React로 결정. AI 상대는 일단 미니맥스 깊이 3으로 가고, 나중에 알파베타 가지치기 붙이자.\n\n## Assistant\n깊이 3이면 초보자 상대로 충분합니다. 알파베타는 같은 인터페이스로 교체 가능합니다."
+    },
+    {
+      "name": "2026-08-31-캐슬링.md",
+      "text": "# 체스 - 특수 규칙\n\n## User\n오늘 캐슬링 구현 끝냈어. 킹사이드 퀸사이드 둘 다. 근데 앙파상이 아직 안 됐어.\n\n## Assistant\n앙파상은 직전 수가 폰 2칸 전진이었는지 기억해야 하므로 board 상태에 lastMove를 추가해야 합니다.\n\n## User\n맞다. 다음에 lastMove 추가하고 앙파상부터 하자."
+    }
+  ]
+}

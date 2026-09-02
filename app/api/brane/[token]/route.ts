@@ -3,6 +3,7 @@ import { getStore } from "@/lib/store";
 import { buildGraphFrom } from "@/lib/graph";
 import { parseConcept } from "@/lib/ingest-core";
 import { makeZip } from "@/lib/zip";
+import { resolveSnapshot, isSample } from "@/lib/budget";
 
 // Read, export, and destroy one visitor's brane.
 //
@@ -26,7 +27,7 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params;
-  const snapshot = await getStore().get(token);
+  const snapshot = await resolveSnapshot(getStore(), token);
   if (!snapshot) return notFound();
 
   const format = req.nextUrl.searchParams.get("format");
@@ -102,6 +103,14 @@ export async function DELETE(
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params;
+  // The shared sample is the fallback the whole degradation story rests on;
+  // any visitor could otherwise delete it for everyone.
+  if (isSample(token)) {
+    return NextResponse.json(
+      { error: "샘플 brane은 삭제할 수 없습니다." },
+      { status: 403 },
+    );
+  }
   const snapshot = await getStore().get(token);
   if (!snapshot) return notFound();
   await getStore().remove(token);

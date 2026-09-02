@@ -11,6 +11,7 @@ import {
   BraneSnapshot,
   RETENTION_DAYS,
 } from "@/lib/store";
+import { claimRun, sampleSnapshot, SAMPLE_TOKEN } from "@/lib/budget";
 
 // The visitor path: drop in your own conversations, watch a brane get built
 // one concept at a time, walk away with an MCP endpoint your other AI can read.
@@ -30,11 +31,10 @@ const MAX_CHARS_PER_SOURCE = 60_000;
 const MAX_TOTAL_CHARS = 200_000;
 const MAX_LABEL = 80;
 
-// Per-instance and therefore approximate — serverless spreads requests around,
-// so this converts an unbounded bill into a bounded one per instance rather
-// than enforcing a true global cap. Good enough to stop a scraper; not good
-// enough for the judging window, where the daily ceiling needs to live in the
-// shared store before the link goes public.
+// Burst control, per instance. Deliberately approximate — serverless spreads
+// requests around, so this stops one client hammering a single instance while
+// the real ceiling (claimRun, below) lives in the shared store and bounds the
+// day's total spend across all of them.
 const WINDOW_MS = 60_000;
 const MAX_RUNS_PER_WINDOW = 3;
 const hits = new Map<string, number[]>();
@@ -161,6 +161,26 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
 
       send({ type: "start", provider: provider.id, sources: sources.length });
+
+      // Today's ceiling, shared across instances. Reaching it must never look
+      // like a fault: the visitor is handed a real, engine-produced brane and
+      // told plainly that it isn't theirs, so the submitted link keeps working
+      // through the judging window no matter how much traffic arrives.
+      const budget = await claimRun(getStore());
+      if (!budget.allowed) {
+        send({
+          type: "done",
+          degraded: true,
+          token: SAMPLE_TOKEN,
+          label: sampleSnapshot().label,
+          message:
+            "오늘의 무료 소화 한도를 모두 사용했습니다. 아래는 이 엔진이 실제로 만든 " +
+            "예시 brane입니다 — 당신의 대화는 저장되지 않았습니다. 내일 다시 시도해주세요.",
+          provider: provider.id,
+        });
+        controller.close();
+        return;
+      }
 
       try {
         const result = await ingestCore({
