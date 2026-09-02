@@ -40,11 +40,16 @@ export default function BrainGraph({
   focusRelPath,
   hideLabel,
   theme = "dark",
+  graph,
 }: {
   onSelect: (relPath: string) => void;
   focusRelPath?: string | null;
   hideLabel?: boolean;
   theme?: "dark" | "light";
+  // Supplied directly by callers that already hold a graph — a visitor's brane
+  // lives in a signed-token snapshot, not at /api/graph, so it can't be fetched
+  // by a component that only knows the author's endpoint.
+  graph?: { nodes: GNode[]; links: GLink[] } | null;
 }) {
   const [data, setData] = useState<{ nodes: GNode[]; links: GLink[] } | null>(null);
   const [dims, setDims] = useState({ width: 800, height: 600 });
@@ -55,20 +60,25 @@ export default function BrainGraph({
   const fgRef = useRef<any>(null);
 
   useEffect(() => {
+    const withDegree = (raw: { nodes: GNode[]; links: GLink[] }) => {
+      const degree: Record<string, number> = {};
+      for (const l of raw.links) {
+        degree[l.source] = (degree[l.source] ?? 0) + 1;
+        degree[l.target] = (degree[l.target] ?? 0) + 1;
+      }
+      setData({
+        nodes: raw.nodes.map((n) => ({ ...n, degree: degree[n.id] ?? 0 })),
+        links: raw.links,
+      });
+    };
+    if (graph) {
+      withDegree(graph);
+      return;
+    }
     fetch("/api/graph")
       .then((r) => r.json())
-      .then((raw: { nodes: GNode[]; links: GLink[] }) => {
-        const degree: Record<string, number> = {};
-        for (const l of raw.links) {
-          degree[l.source] = (degree[l.source] ?? 0) + 1;
-          degree[l.target] = (degree[l.target] ?? 0) + 1;
-        }
-        setData({
-          nodes: raw.nodes.map((n) => ({ ...n, degree: degree[n.id] ?? 0 })),
-          links: raw.links,
-        });
-      });
-  }, []);
+      .then(withDegree);
+  }, [graph]);
 
   useEffect(() => {
     function resize() {

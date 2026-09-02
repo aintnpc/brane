@@ -23,6 +23,12 @@ const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
   "ventures/share2dm.md",
   "ventures/playit.md",
   "ventures/befficient.md",
+  // The work itself, written as ledger documents so the ask path can reach it.
+  // lib/cases.ts renders these on the page; without them in the ledger, /api/ask
+  // answered questions about the settlement work by saying there was no record.
+  "work/clozet-settlement.md",
+  "work/share2dm-queue.md",
+  "work/green-apple-prescription.md",
   // How the work gets done.
   "architecture/brane.md",
   "playbooks/sales-activation-method.md",

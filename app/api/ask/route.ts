@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import { ask } from "@/lib/load";
 
 // This endpoint is open on a public domain and every call bills Anthropic
@@ -70,7 +71,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // What people ask is the point of this endpoint existing — which questions a
+  // recruiter or judge actually types is the demand side of the whole idea. The
+  // IP is hashed rather than stored: distinguishing "one person asked five
+  // things" from "five people asked one thing" is the useful signal, and the
+  // address itself isn't needed for that.
+  const visitor = createHash("sha256").update(ip).digest("hex").slice(0, 8);
+
   if (dailyBudgetExhausted()) {
+    console.log(`[ask] BUDGET visitor=${visitor} q=${JSON.stringify(query)}`);
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
@@ -78,8 +87,11 @@ export async function POST(req: NextRequest) {
     const result = await ask(query);
     const u = result.trace;
     console.log(
-      `[ask] day=${dayKey} n=${dayCount} in=${u.selection.inputTokens + u.synthesis.inputTokens} ` +
-        `out=${u.selection.outputTokens + u.synthesis.outputTokens} hops=${u.archiveHops}`,
+      `[ask] visitor=${visitor} q=${JSON.stringify(query)} ` +
+        `docs=${JSON.stringify(result.loadedFiles.map((f) => f.relPath))} ` +
+        `in=${u.selection.inputTokens + u.synthesis.inputTokens} ` +
+        `out=${u.selection.outputTokens + u.synthesis.outputTokens} ` +
+        `hops=${u.archiveHops} n=${dayCount}`,
     );
     return NextResponse.json(result);
   } catch (err) {

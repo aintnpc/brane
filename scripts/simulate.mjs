@@ -64,23 +64,52 @@ async function main() {
     console.log(c.dim(`\n실행 중 — provider=${provider ?? "(기본값)"} personas=${personas ?? "all"}\n`));
   }
 
-  const res = await fetch(`${BASE}/api/simulate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ provider, personas }),
-  });
-  const suite = await res.json();
+  // One request per persona rather than one for the whole suite. A real model
+  // takes tens of seconds per source, and a single request covering every
+  // persona blows past undici's 5-minute headers timeout — the run dies with a
+  // network error after having done all the work. Splitting it also means each
+  // result prints as it lands instead of after everything finishes.
+  const wanted = personas ?? meta.personas.map((p) => p.id);
+  const runs = [];
 
-  if (!res.ok) {
-    console.error(suite.detail ?? suite.error ?? "unknown error");
-    process.exit(1);
+  for (const id of wanted) {
+    if (!asJson) process.stdout.write(c.dim(`  ${id} … `));
+    const started = Date.now();
+    const res = await fetch(`${BASE}/api/simulate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider, personas: [id] }),
+    });
+    const part = await res.json();
+    if (!res.ok) {
+      console.error(`\n${part.detail ?? part.error ?? "unknown error"}`);
+      process.exit(1);
+    }
+    runs.push(...part.runs);
+    if (!asJson) console.log(c.dim(`${((Date.now() - started) / 1000).toFixed(1)}s`));
   }
+
+  const suite = {
+    provider: runs[0]?.provider ?? provider ?? "(unknown)",
+    startedAt: new Date().toISOString(),
+    runs,
+    summary: {
+      personas: runs.length,
+      checksPassed: runs.flatMap((r) => r.checks).filter((ch) => ch.passed).length,
+      checksTotal: runs.flatMap((r) => r.checks).length,
+      totalCalls: runs.reduce((a, r) => a + r.metrics.calls, 0),
+      totalInputTokens: runs.reduce((a, r) => a + r.metrics.inputTokens, 0),
+      totalOutputTokens: runs.reduce((a, r) => a + r.metrics.outputTokens, 0),
+      totalDurationMs: runs.reduce((a, r) => a + r.metrics.durationMs, 0),
+    },
+  };
 
   if (asJson) {
     console.log(JSON.stringify(suite, null, 2));
     return;
   }
 
+  console.log("");
   console.log(c.bold(`brane write-path simulation — ${suite.provider}`));
   console.log(c.dim(suite.startedAt));
 

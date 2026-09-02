@@ -95,7 +95,12 @@ const PLAN_SYSTEM_PROMPT = `You are brane's write-path planner. Given a bundle i
 
 Rules:
 - Extract decisions, facts, strategy, and state changes as concept units. Ignore greetings, small talk, and repeated confirmations with no conceptual content.
-- Each concept must pass the "still valid to me in 6 months?" test. Drop one-off content that fails this.
+- Every concept must pass BOTH gates:
+  1. DURABLE — still true and relevant in six months.
+  2. PERSONAL — it says something about THIS person: a decision they made, a position they hold, the state of their project, a constraint they work under, context they would otherwise have to re-explain to every new AI session.
+  General knowledge, tool usage, API syntax, and anything a manual or any competent model already knows fails gate 2 even when it sails through gate 1. "git reset --soft undoes the last commit" is permanently true and is NOT a concept — it says nothing about this person. Neither is "the bug was an uninitialized pointer" or "port 3000 was already in use".
+- Decisive test: would a new AI session be meaningfully worse at helping this person if it did not know this? If no, drop it.
+- A source that contains nothing but troubleshooting, how-to answers, or acknowledgements should yield an empty array. Returning nothing is a correct and expected outcome, not a failure.
 - For each concept, search the bundle index for an existing file covering the same topic.
 - Judge each concept as exactly one of:
   - NEW: no existing file covers this — propose a new bundle relPath (lowercase-hyphenated, in an appropriate category directory: identity/ ventures/ roadmap/ playbooks/ notes/ architecture/).
