@@ -2,9 +2,9 @@
 type: Concept
 title: Brane
 description: 개인 작업 연속성을 푸는 agent-native workspace — 읽고 고칠 수 있는, 스스로 소화하는(self-writing) 파일 두뇌. 기억은 상품이 아니라 부품.
-tags: [brane, memory-engine, thin-waist, okf, sovereign-brain, workspace, work-continuity, self-writing, mcp, write-path, brane-sync, parked]
-timestamp: 2026-07-24
-status: "컨셉 확정 · 이름 확정 · 문제 재정의(2026-07-05: 상품=워크스페이스, 기억=부품) · 도그푸딩 중 · 코드 착수는 Green Apple 게이트 + 편입(2026-12) 이후 · 논문/학회 플레이북 확정(2026-07-06) · read-path UI(app/) 오버라이드로 착수·배포(2026-07-22~23) · 프로덕션 write 경로 설계 중(2026-07-24) · Brane Sync 확장 중복 동기화 방지(ID/제목 기반 스킵) 기존 구현 확인·문서화(2026-07-24) · Brane Sync 확장에 Gemini 단일 대화 캡처 기능 추가(2026-07-24) · Gemini 캡처 비동기 확증 대기·pause 토글 및 자동 수집 훅 백로그 제한(3개 초과 시 알림만) 비용 안전장치 도입(2026-07-24)"
+tags: [brane, memory-engine, thin-waist, okf, sovereign-brain, workspace, work-continuity, self-writing, mcp, write-path, brane-sync, multi-agent, telegram, human-in-the-loop, parked]
+timestamp: 2026-07-25
+status: "컨셉 확정 · 이름 확정 · 문제 재정의(2026-07-05: 상품=워크스페이스, 기억=부품) · 도그푸딩 중 · 코드 착수는 Green Apple 게이트 + 편입(2026-12) 이후 · 논문/학회 플레이북 확정(2026-07-06) · read-path UI(app/) 오버라이드로 착수·배포(2026-07-22~23) · 프로덕션 write 경로 설계 중(2026-07-24) · Brane Sync 확장 중복 동기화 방지(ID/제목 기반 스킵) 기존 구현 확인·문서화(2026-07-24) · Brane Sync 확장에 Gemini 단일 대화 캡처 기능 추가(2026-07-24) · Gemini 캡처 비동기 확증 대기·pause 토글 및 자동 수집 훅 백로그 제한(3개 초과 시 알림만) 비용 안전장치 도입(2026-07-24) · 수집(확장)과 인제스트(비용) 분리 및 확장 직행 ingest 체이닝 제거(2026-07-24) · 텔레그램 기반 멀티에이전트 오케스트레이터 및 실세계 액션 승인 안전장치(HITL) 설계 착수(2026-07-25)"
 codename: brane
 ---
 
@@ -71,7 +71,7 @@ codename: brane
 ┌─────────────────────────────────────────────────────┐
 │  SURFACES (위 가지 = 늘릴수록 해자)                    │
 │  ChatGPT · Claude · Cursor · Claude Code · Notion    │
-│  Obsidian · VS Code · Slack · Hyre · Nabi            │
+│  Obsidian · VS Code · Slack · Hyre · Nabi · Telegram │
 └──────────────────────┬──────────────────────────────┘
                        │  읽기/쓰기 = 그냥 파일
               ┌────────▼────────┐
@@ -105,4 +105,16 @@ codename: brane
 
 - 확장은 각 AI 서비스(ChatGPT, Claude, Gemini 등) 팝업에서 동작하며, 전체 사이드바 동기화 버튼 외에 개별 대화 단위 캡처 흐름을 갖는다. ^[archive/2026-07-24-claude-code-30082785-2161.md]
 - **Gemini 대화 캡처 확증 및 일시정지**: Gemini 대화 캡처 시 낙관적 성공 표시 대신 실제 다운로드/저장이 끝날 때까지 `captureCurrentPage()`에서 비동기 확증을 대기하도록 고쳐 수집 신뢰성을 확보했으며, 과도한 과거 히스토리 수집을 막기 위한 일시정지(pause) 토글을 지원한다. ^[archive/2026-07-24-claude-code-30082785-2281.md]
-- **백로그 수량 제한 및 비용 안전장치**: 수집 훅이 `inbox` 대기열을 제한 없이 자동 소화할 경우 대량의 API 콜과 토큰 비용이 무단 소비될 수 있다. ^[archive/2026-07-24-claude-code-30082785-2281.md] 이를 방지하기 위해 `inbox` 파일이 3개를 초과하면 자동 처리 훅을 중단하고 사용자 알림만 발생시키며, 대량 수집은 `node .claude/hooks/ingest-all.js` 명령을 통해 명시적으로 검토 후 수동 실행하도록 제약을 둔다. ^[archive/2026-07-24-claude-code-30082785-2281.md]
+- **수집(Capture)과 인제스트(Ingest)의 분리**: 확장의 `postToLocalBrane()`가 캡처 성공 시 `/api/ingest`를 무제한 직행 호출하던 체이닝을 제거하고, 확장은 순수하게 `inbox`에 파일만 적재하도록 역할을 격리했다. ^[archive/2026-07-24-claude-code-30082785-2391.md]
+- **백로그 수량 제한 및 비용 안전장치**: 수집 훅이 `inbox` 대기열을 제한 없이 자동 소화할 경우 대량의 API 콜과 토큰 비용이 무단 소비될 수 있다. ^[archive/2026-07-24-claude-code-30082785-2281.md] 따라서 비용이 드는 인제스트 처리는 Claude Code hook(inbox가 3개를 초과하면 자동 처리를 중단하고 사용자 알림만 발생) 또는 사용자가 직접 실행하는 `node .claude/hooks/ingest-all.js` 수동 배치 경로로만 제한된다. ^[archive/2026-07-24-claude-code-30082785-2281.md] ^[archive/2026-07-24-claude-code-30082785-2391.md]
+
+# 멀티에이전트 오케스트레이터 및 실세계 액션 원칙
+
+- **확장 불가능한 일을 에이전트에게 시킨다 (Make agents do things that don't scale)**: 창업자가 인지하면서도 회피하기 쉬운 아웃리치, UGC 크리에이터 컨택 등의 반복적 실무를 에이전트가 대신하도록 설계한다. ^[archive/2026-07-25-claude-code-30082785-2511.md]
+- **3-에이전트 구조 (Telegram 인터페이스)**:
+  1. **중간관리자 (오케스트레이터)**: 텔레그램으로 지시 수신 → brane 번들 로드로 맥락 파악 → [Clozet](../ventures/clozet.md) 또는 [Green Apple](../ventures/green-apple.md) 실무자에게 태스크 분배 → 결과 취합 보고 및 에스컬레이션. ^[archive/2026-07-25-claude-code-30082785-2511.md]
+  2. **Clozet 실무자**: 플레이북 기반 브랜드/크리에이터 아웃리치 초안 작성 및 팔로우업. ^[archive/2026-07-25-claude-code-30082785-2511.md]
+  3. **Green Apple 실무자**: 플레이북 기반 UGC 컨택, 커뮤니티 관여, 결제자 팔로우업, 계측 분석 모니터링 초안 작성. ^[archive/2026-07-25-claude-code-30082785-2511.md]
+- **실세계 액션 승인 안전장치 (HITL — Human in the Loop)**:
+  - 이메일/DM 발송과 같은 외부 영향이 발생하는 실세계 액션은 되돌릴 수 없으므로, 에이전트는 **초안 작성까지만** 수행하고 텔레그램을 통해 사용자에게 보여준 뒤 승인을 기다린다. ^[archive/2026-07-25-claude-code-30082785-2511.md]
+  - 사용자 승인 없는 단독 MCP 발송 실행은 엄격히 금지되며, 충분한 승인율과 품질이 검증된 후에만 좁은 범위에서 자동화를 확대한다. ^[archive/2026-07-25-claude-code-30082785-2511.md]

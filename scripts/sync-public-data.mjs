@@ -31,7 +31,10 @@ const vis = fs.readFileSync(path.join(APP_DIR, "lib/visibility.ts"), "utf-8");
 function parseSet(name) {
   const m = vis.match(new RegExp(`const ${name}[^=]*=\\s*new Set\\(\\[([\\s\\S]*?)\\]\\)`));
   if (!m) throw new Error(`could not find ${name} in lib/visibility.ts`);
-  return [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]);
+  // Strip comments first: a quoted phrase inside one would otherwise be read as
+  // a filename, and the failure is silent — it just copies one file less.
+  const body = m[1].replace(/\/\/[^\n]*/g, "");
+  return [...body.matchAll(/"([^"]+)"/g)].map((x) => x[1]);
 }
 const concepts = parseSet("PUBLIC_CONCEPTS");
 const archives = parseSet("PUBLIC_ARCHIVE");

@@ -66,6 +66,16 @@ const PUBLIC_CONCEPTS: ReadonlySet<string> = new Set([
 const PUBLIC_ARCHIVE: ReadonlySet<string> = new Set([
   // 2026 — the agent-orchestration claim, in his own prompts.
   "2026-07-14-현재-brix-폴더를-분석한-결과-앱-코드-apps-packages-는-이미-모노레포.md",
+  // The artifacts the work documents cite. Until these were here, the ledger
+  // held only conversations, so the promise that every sentence carries an
+  // openable source resolved to a withheld-source notice for all but two tags. Each was read in full
+  // and scanned for keys, tokens, phone numbers and infrastructure identifiers.
+  "2025-12-14-clozet-payment-status-결함-진단.md",
+  "2025-12-16-clozet-정산-수정-검증-보고서.md",
+  "2026-02-03-lyfe-clozet-기능-패리티-감사.md",
+  "2026-02-22-share2dm-무료-티어-한도-분석.md",
+  "2026-04-14-share2dm-queue-processor.ts.md",
+  "2026-07-05-green-apple-처방-로직-문서.md",
 ]);
 
 /**

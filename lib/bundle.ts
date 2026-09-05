@@ -34,6 +34,12 @@ export interface ConceptFile {
   timestamp: string;
   status?: string;
   content: string; // markdown body (frontmatter stripped)
+  /**
+   * How many `^[archive/...]` tags this document carries and how many of those
+   * sources a reader can actually open. A page that promises every sentence has
+   * a checkable source should say, per document, whether that's true here.
+   */
+  citations: { total: number; open: number };
 }
 
 // Public concepts cross-link to private ones — ventures/pegasus.md points at
@@ -42,6 +48,17 @@ export interface ConceptFile {
 // getConcept() refuses their contents, and leaves the reader clicking links that
 // 404. Demote those links to plain text; leave `^[archive/...]` citations alone
 // (different syntax, and they have their own gate in getArchiveSource).
+
+function countCitations(content: string): { total: number; open: number } {
+  const refs = [...content.matchAll(/\^\[([^\]]+)\]/g)].flatMap((m) =>
+    m[1].split(",").map((r) => r.trim()),
+  );
+  return {
+    total: refs.length,
+    open: refs.filter((r) => isPublicArchive(r) || privateAccessAllowed()).length,
+  };
+}
+
 function redactPrivateLinks(content: string, fromRelPath: string): string {
   if (privateAccessAllowed()) return content;
   const fromDir = path.dirname(path.join(BUNDLE_DIR, fromRelPath));
@@ -114,6 +131,7 @@ export function listConcepts(): ConceptFile[] {
       timestamp: normalizeTimestamp(data.timestamp),
       status: data.status as string | undefined,
       content: redactPrivateLinks(content, relPath),
+      citations: countCitations(content),
     });
   }
   return concepts.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
@@ -146,6 +164,7 @@ export function getConcept(relPath: string): ConceptFile | null {
     timestamp: normalizeTimestamp(data.timestamp),
     status: data.status as string | undefined,
     content: redactPrivateLinks(content, relPath),
+    citations: countCitations(content),
   };
 }
 

@@ -196,6 +196,26 @@ export default function BraneApp() {
               <p className="text-[var(--text-secondary)]">{selected.description}</p>
               <div className="mt-1 flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-muted)]">
                 <span>{selected.timestamp}</span>
+                {selected.citations.total > 0 && (
+                  <span
+                    className="rounded-full border px-2 py-0.5"
+                    style={{
+                      borderColor:
+                        selected.citations.open === selected.citations.total
+                          ? "var(--accent-text)"
+                          : "var(--panel-border)",
+                      color:
+                        selected.citations.open === selected.citations.total
+                          ? "var(--accent-text)"
+                          : "var(--text-muted)",
+                    }}
+                    title="이 문서의 인용 중 원본을 열 수 있는 개수"
+                  >
+                    {selected.citations.open === selected.citations.total
+                      ? `인용 ${selected.citations.total}개 전부 열림`
+                      : `인용 ${selected.citations.open}/${selected.citations.total} 열림`}
+                  </span>
+                )}
                 {selected.status && <span>· {selected.status}</span>}
                 {selected.tags.map((t) => (
                   <span
